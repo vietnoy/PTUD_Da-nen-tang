@@ -3,19 +3,23 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings, settings_summary
+from app.api import api_router
 
 
 def create_app() -> FastAPI:
     app = FastAPI(title=settings.project_name, version="0.1.0")
 
-    if settings.backend_cors_origins:
+    if settings.cors_origins:
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=settings.backend_cors_origins,
+            allow_origins=settings.cors_origins,
             allow_credentials=True,
             allow_methods=["*"],
             allow_headers=["*"],
         )
+
+    # Include API routes
+    app.include_router(api_router, prefix=settings.api_v1_prefix)
 
     @app.get("/healthz", tags=["health"], summary="Liveness check")
     def healthz() -> dict[str, str]:

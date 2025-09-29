@@ -1,14 +1,20 @@
 """Alembic environment configuration."""
 from __future__ import annotations
 
+import sys
+import os
 from logging.config import fileConfig
 
 from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
+# Add the app directory to Python path
+sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
+
 from app.core.config import settings
-from app.models import base  # noqa: F401 - ensures models are imported
+from app.models.base import Base
+from app.models import *  # noqa: F401 - ensures models are imported
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -23,7 +29,7 @@ config.set_main_option("sqlalchemy.url", settings.database_url)
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
     url = config.get_main_option("sqlalchemy.url")
-    context.configure(url=url, target_metadata=None, literal_binds=True)
+    context.configure(url=url, target_metadata=Base.metadata, literal_binds=True)
 
     with context.begin_transaction():
         context.run_migrations()
@@ -38,7 +44,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=None)
+        context.configure(connection=connection, target_metadata=Base.metadata)
 
         with context.begin_transaction():
             context.run_migrations()
