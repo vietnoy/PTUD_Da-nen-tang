@@ -11,7 +11,13 @@ class Settings(BaseSettings):
     secret_key: str = "change-me"
     access_token_expires_minutes: int = 15
     refresh_token_expires_minutes: int = 60 * 24 * 7
-    backend_cors_origins: List[str] = ["*"]
+    backend_cors_origins: str = "*"
+
+    @property
+    def cors_origins(self) -> List[str]:
+        if self.backend_cors_origins == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.backend_cors_origins.split(",")]
 
     database_url: str = "postgresql+psycopg2://postgres:postgres@db:5432/di_cho"
     redis_url: str = "redis://redis:6379/0"
