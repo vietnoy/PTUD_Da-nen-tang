@@ -1,7 +1,8 @@
 import minio
 from .config import get_settings
 import uuid
-from fastapi import UploadFile, Path
+from fastapi import UploadFile
+from pathlib import Path
 
 # load setting from pre-defined configs
 settings = get_settings()
@@ -11,7 +12,8 @@ def get_minio_client():
     client = minio.Minio(
         endpoint=settings.minio_endpoint,
         access_key=settings.minio_access_key,
-        secret_key=settings.minio_secret_key
+        secret_key=settings.minio_secret_key,
+        secure=False # add this cause we are using http
     )
 
     return client

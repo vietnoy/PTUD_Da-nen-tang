@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from ..core.database import get_db
 from ..core.deps import get_current_user
-from ..schemas.user import UserResponse, EditUserRequest, EditUserResponse, ChangePasswordRequest, ChangePasswordResponse
+from ..schemas.user import UserResponse, EditUserResponse, ChangePasswordRequest, ChangePasswordResponse
 from ..models import User
 from ..core import storage
 from ..services import user
@@ -69,3 +69,5 @@ def remove_current_user_profile(current_user: User = Depends(get_current_user),
     db.delete(current_user)
 
     db.commit()
+
+    return {"message": "User deleted successfully"}
