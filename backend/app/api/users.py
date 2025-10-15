@@ -4,10 +4,10 @@ from sqlalchemy.orm import Session
 
 from ..core.database import get_db
 from ..core.deps import get_current_user
-from ..schemas.auth import UserResponse
+from ..schemas.user import UserResponse
 from ..models import User
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/user", tags=["User"])
 
 
 @router.get("/me", response_model=UserResponse)

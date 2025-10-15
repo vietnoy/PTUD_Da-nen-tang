@@ -3,10 +3,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings, settings_summary
+from app.core.database import engine
 from app.api import api_router
+
+from app.models import *
+from app.models import Base
 
 
 def create_app() -> FastAPI:
+    # Create database tables on startup
+    Base.metadata.create_all(bind=engine)
+
     app = FastAPI(title=settings.project_name, version="0.1.0")
 
     if settings.cors_origins:

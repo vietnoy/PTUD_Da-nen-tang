@@ -1,23 +1,24 @@
+"""Common base schemas shared across the application."""
 from datetime import date, datetime
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
 
-# Result message structure used in responses
 class ResultMessage(BaseModel):
+    """Result message structure in multiple languages."""
     en: str
     vn: str
 
 
-# Base response structure
 class BaseResponse(BaseModel):
+    """Base response structure for all API responses."""
     result_message: ResultMessage = Field(..., alias="resultMessage")
     result_code: str = Field(..., alias="resultCode")
 
 
-# User data structure for group member responses
-class GroupMemberData(BaseModel):
+class UserData(BaseModel):
+    """User data structure for responses."""
     id: int
     email: str
     password: str = ""  # Usually empty string in responses for security
@@ -36,40 +37,3 @@ class GroupMemberData(BaseModel):
     belongs_to_group_admin_id: int = Field(0, alias="belongsToGroupAdminId")
     created_at: datetime = Field(default_factory=datetime.now, alias="createdAt")
     updated_at: datetime = Field(default_factory=datetime.now, alias="updatedAt")
-
-
-# Create group endpoint schemas
-class CreateGroupRequest(BaseModel):
-    pass  # No body parameters needed based on the documentation
-
-
-class CreateGroupResponse(BaseResponse):
-    admin_id: int = Field(..., alias="adminId")
-
-
-# Add member endpoint schemas
-class AddMemberRequest(BaseModel):
-    username: str = Field(..., min_length=1)
-
-
-class AddMemberResponse(BaseResponse):
-    pass  # Only base response structure needed
-
-
-# Delete member endpoint schemas
-class DeleteMemberRequest(BaseModel):
-    username: str = Field(..., min_length=1)
-
-
-class DeleteMemberResponse(BaseResponse):
-    pass  # Only base response structure needed
-
-
-# Get group members endpoint schemas
-class GetGroupMembersRequest(BaseModel):
-    pass  # No body parameters needed, it's a GET request
-
-
-class GetGroupMembersResponse(BaseResponse):
-    group_admin: GroupMemberData = Field(..., alias="groupAdmin")
-    members: List[GroupMemberData] = []

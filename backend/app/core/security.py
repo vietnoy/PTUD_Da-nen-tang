@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
 import bcrypt
 import jwt
+import secrets
 from .config import settings
 
 
@@ -41,3 +42,8 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, hashed_password: str) -> bool:
     """Verify password against hash."""
     return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
+
+def generate_otp_code() -> str:
+    """Generate 6 digits code to verify email"""
+    otp_code = "".join(secrets.choice("0123456789") for _ in range(6))
+    return otp_code
