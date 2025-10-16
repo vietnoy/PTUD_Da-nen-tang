@@ -27,8 +27,6 @@ def _ensure_bucket(client: minio.Minio, bucket_name: str):
         print(f"Bucket {bucket_name} existed!")
 
 def upload_file(client: minio.Minio, file: UploadFile, folder, old_url: str):
-    # create a unique name for the file
-
     _ensure_bucket(client, settings.minio_bucket)
 
     if old_url:
@@ -36,6 +34,8 @@ def upload_file(client: minio.Minio, file: UploadFile, folder, old_url: str):
         delete_file(client, object_name)
 
     file_extension = Path(file.filename).suffix
+
+    # create an unique name for the file before upload it
     object_name = f"{folder}/{uuid.uuid4()}{file_extension}"
 
     try: 

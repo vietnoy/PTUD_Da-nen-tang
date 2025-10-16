@@ -9,7 +9,7 @@ from ..models import User
 from ..core import storage
 from ..services import user
 
-router = APIRouter(prefix="/user", tags=["User"])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.get("/me", response_model=UserResponse)
