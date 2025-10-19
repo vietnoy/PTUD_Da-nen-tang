@@ -568,7 +568,7 @@ class ResponseCode(Enum):
 
 
 # Utility functions
-def get_error_response(error_code: ErrorCode, data=None) -> dict:
+def get_error_response(error_code: ResponseCode, data=None) -> dict:
     """
     Tạo response chuẩn cho API
 
