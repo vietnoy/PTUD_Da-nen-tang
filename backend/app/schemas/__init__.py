@@ -111,9 +111,15 @@ from .ShoppingList.shoppingList import (
     UpdateTaskResponse,
 )
 
-# User schemas
-from .User.Auth.auth import (
+# Base schemas
+from .base import (
     BaseResponse,
+    ResultMessage,
+    UserData,
+)
+
+# Authentication schemas
+from .auth import (
     LoginRequest,
     LoginResponse,
     LogoutRequest,
@@ -122,37 +128,34 @@ from .User.Auth.auth import (
     RefreshTokenResponse,
     RegisterRequest,
     RegisterResponse,
-    ResultMessage,
     SendVerificationCodeRequest,
     SendVerificationCodeResponse,
-    UserData,
     VerifyEmailRequest,
     VerifyEmailResponse,
 )
-from .User.Edit.edit import (
-    ChangePasswordRequest,
-    ChangePasswordResponse,
-    EditUserRequest,
-    EditUserResponse,
-    SaveNotificationTokenRequest,
-    SaveNotificationTokenResponse,
-)
-from .User.Group.group import (
+
+# User schemas
+from .user import (
     AddMemberRequest,
     AddMemberResponse,
+    ChangePasswordRequest,
+    ChangePasswordResponse,
     CreateGroupRequest,
     CreateGroupResponse,
     DeleteMemberRequest,
     DeleteMemberResponse,
-    GetGroupMembersRequest,
-    GetGroupMembersResponse,
-    GroupMemberData,
-)
-from .User.user import (
     DeleteUserRequest,
     DeleteUserResponse,
+    EditUserRequest,
+    EditUserResponse,
+    GetGroupMembersRequest,
+    GetGroupMembersResponse,
     GetUserRequest,
     GetUserResponse,
+    GroupMemberData,
+    SaveNotificationTokenRequest,
+    SaveNotificationTokenResponse,
+    UserResponse,
 )
 
 # Export all for * imports
@@ -196,6 +199,7 @@ __all__ = [
     "GetUserResponse",
     "DeleteUserRequest",
     "DeleteUserResponse",
+    "UserResponse",
     # Admin
     "LogData",
     "GetLogsRequest",
