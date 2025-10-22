@@ -1,5 +1,7 @@
 """User-related database models."""
+
 from datetime import datetime
+
 from sqlalchemy import Boolean, DateTime, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -14,10 +16,17 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255))
     name: Mapped[str] = mapped_column(String(100))
     username: Mapped[str | None] = mapped_column(String(50), unique=True, index=True)
-    avatar_url: Mapped[str | None] = mapped_column(String(500))
+    photo_url: Mapped[str | None] = mapped_column(String(500))
+    gender: Mapped[str | None] = mapped_column(String(10))
+    birth_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    country_code: Mapped[str | None] = mapped_column(String(10))
     language: Mapped[str] = mapped_column(String(5), default="en")
     timezone: Mapped[str] = mapped_column(String(50), default="UTC")
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )

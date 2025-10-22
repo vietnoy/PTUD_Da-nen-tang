@@ -1,9 +1,9 @@
 """FastAPI application entrypoint."""
+
+from app.api import api_router
+from app.core.config import settings, settings_summary
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
-from app.core.config import settings, settings_summary
-from app.api import api_router
 
 
 def create_app() -> FastAPI:
