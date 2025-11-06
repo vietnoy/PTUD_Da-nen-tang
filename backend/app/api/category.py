@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from ..core.database import get_db
 from ..core.deps import get_current_user
 from ..models import Category, User
 from ..schemas.base import ResultMessage
@@ -17,7 +18,6 @@ from ..schemas.category import (
     GetAllCategoriesResponse,
 )
 from ..utils.resultCode import ResultCode
-from .core.database import get_db
 
 router = APIRouter(prefix="/category", tags=["Categories"])
 

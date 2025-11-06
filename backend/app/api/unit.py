@@ -1,14 +1,11 @@
 """Unit-related API routes."""
 
-import os
-import sys
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, parent_dir)
-
+from ..core.database import get_db
 from ..core.deps import get_current_user
 from ..models import Unit, User
 from ..schemas.base import ResultMessage
@@ -19,13 +16,10 @@ from ..schemas.unit import (
     DeleteUnitResponse,
     EditUnitByNameRequest,
     EditUnitByNameResponse,
-    GetAllUnitsRequest,
     GetAllUnitsResponse,
     UnitData,
 )
 from ..utils.resultCode import ResultCode
-from .core.database import get_db
-from decimal import Decimal
 
 router = APIRouter(prefix="/unit", tags=["Units"])
 
