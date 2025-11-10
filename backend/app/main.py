@@ -1,6 +1,7 @@
 """FastAPI application entrypoint."""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer
 
 from app.core.config import settings, settings_summary
 from app.core.database import engine
@@ -14,7 +15,13 @@ def create_app() -> FastAPI:
     # Create database tables on startup
     Base.metadata.create_all(bind=engine)
 
-    app = FastAPI(title=settings.project_name, version="0.1.0")
+    app = FastAPI(
+        title=settings.project_name,
+        version="0.1.0",
+        swagger_ui_init_oauth={
+            "usePkceWithAuthorizationCodeGrant": True,
+        }
+    )
 
     if settings.cors_origins:
         app.add_middleware(
