@@ -5,6 +5,7 @@ from ..core.deps import get_current_user
 from ..models import User, GroupMember, Group
 from ..services.group import GroupService
 
+from ..schemas.base import ResultMessage
 from ..schemas.group import (CreateGroupRequest, CreateGroupResponse, AddMemberRequest, AddMemberResponse,
                              RemoveMemberRequest, RemoveMemberResponse, GetGroupMembersResponse, MemberInfo)
 
@@ -36,7 +37,13 @@ def add_member(request: AddMemberRequest,
 
     GroupService.add_group_member(user_id=current_user.id, db=db, group_id=group.id)
 
-    return AddMemberResponse()
+    return AddMemberResponse(
+        resultMessage=ResultMessage(
+            en="Join group successfully",
+            vn="Gia nhập nhóm thành công"
+        ),
+        resultCode="00102"
+    )
 
 @router.delete("/group", response_model=RemoveMemberResponse)
 def remove_member(request: RemoveMemberRequest,
@@ -99,7 +106,13 @@ def remove_member(request: RemoveMemberRequest,
     db.delete(target_member)
     db.commit()
 
-    return RemoveMemberResponse()
+    return RemoveMemberResponse(
+        resultMessage=ResultMessage(
+            en="Remove member successfully",
+            vn="Xoá thành viên thành công"
+        ),
+        resultCode="00104"
+    )
 
 
 @router.get("/group", response_model=GetGroupMembersResponse)
@@ -149,6 +162,11 @@ def get_group_members(group_id: int,
         ))
 
     return GetGroupMembersResponse(
+        resultMessage=ResultMessage(
+            en="Retrieve group members successfully",
+            vn="Lấy thông tin thành viên nhóm thành công"
+        ),
+        resultCode="00103",
         groupId=group.id,
         groupName=group.name,
         members=member_list

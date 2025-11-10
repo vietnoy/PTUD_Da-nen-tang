@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 
 from ..core.database import get_db
 from ..core.deps import get_current_user
-from ..schemas.user import UserResponse, EditUserResponse, ChangePasswordRequest, ChangePasswordResponse
+from ..schemas.user import GetUserResponse, EditUserResponse, ChangePasswordRequest, ChangePasswordResponse
+from ..schemas.base import UserData, ResultMessage
 from ..models import User
 from ..core import storage
 from ..services import user
@@ -12,10 +13,17 @@ from ..services import user
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("/me", response_model=UserResponse)
+@router.get("/me", response_model=GetUserResponse)
 def get_current_user_profile(current_user: User = Depends(get_current_user)):
     """Get current user profile."""
-    return current_user
+    return GetUserResponse(
+        resultMessage=ResultMessage(
+            en="User information retrieved successfully",
+            vn="Thông tin người dùng đã được lấy thành công"
+        ),
+        resultCode="00089",
+        user=UserData.model_validate(current_user)
+    )
 
 @router.put("/me", response_model=EditUserResponse)
 def edit_current_user_profile(
@@ -45,6 +53,11 @@ def edit_current_user_profile(
     db.commit()
 
     return EditUserResponse(
+        resultMessage=ResultMessage(
+            en="User information altered successfully",
+            vn="Thông tin người dùng đã được thay đổi thành công"
+        ),
+        resultCode="00090",
         photoUrl=photo_url
     )
 
@@ -60,7 +73,13 @@ def change_password(request: ChangePasswordRequest,
 
     db.commit()
 
-    return ChangePasswordResponse()
+    return ChangePasswordResponse(
+        resultMessage=ResultMessage(
+            en="User password has been changed successfully",
+            vn="Mật khẩu người dùng được thay đổi thành công"
+        ),
+        resultCode="00091"
+    )
 
 @router.delete("/me")
 def remove_current_user_profile(current_user: User = Depends(get_current_user),

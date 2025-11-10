@@ -1,6 +1,7 @@
 from ..models import User, Group, GroupMember
 from sqlalchemy.orm import Session
-from ..schemas.group import CreateGroupRequest, CreateGroupResponse, AddMemberRequest
+from ..schemas.group import CreateGroupRequest, CreateGroupResponse
+from ..schemas.base import ResultMessage
 from fastapi import HTTPException, status
 import secrets
 
@@ -37,6 +38,11 @@ class GroupService:
         db.commit()
 
         return CreateGroupResponse(
+            resultMessage=ResultMessage(
+                en="Create group succesfully",
+                vn="Tạo nhóm thành công"
+            ),
+            resultCode="00101",
             invite_code=group.invite_code,
             groupName=group.name,
             ownerID=user.id

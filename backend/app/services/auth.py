@@ -5,13 +5,13 @@ from fastapi import HTTPException, status
 from ..models import User
 from ..schemas.auth import RegisterRequest, LoginRequest
 from ..core.security import hash_password, verify_password, create_access_token, create_refresh_token, generate_otp_code
-
-from celery import current_app
+from ..core.config import settings
+from ..workers.celery_app import celery_app
 
 import redis
 from datetime import timedelta
 
-redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+redis_client = redis.from_url(settings.redis_url, decode_responses=True)
 
 
 class AuthService:
@@ -81,7 +81,7 @@ class AuthService:
         )
 
         # add a task to the celery redis queue
-        current_app.send_task(
+        celery_app.send_task(
                 'tasks.send_verification_email',
                 args=[user.email, otp_code]
         )

@@ -37,3 +37,7 @@ class UserData(BaseModel):
     belongs_to_group_admin_id: int = Field(0, alias="belongsToGroupAdminId")
     created_at: datetime = Field(default_factory=datetime.now, alias="createdAt")
     updated_at: datetime = Field(default_factory=datetime.now, alias="updatedAt")
+
+    class Config:
+        from_attributes = True
+        populate_by_name = True
