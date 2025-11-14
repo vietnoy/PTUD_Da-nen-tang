@@ -16,6 +16,8 @@ from ..schemas.category import (
     EditCategoryByNameRequest,
     EditCategoryByNameResponse,
     GetAllCategoriesResponse,
+    GetCategoryByIDRequest,
+    GetCategoryByIDResponse,
 )
 from ..utils.resultCode import ResultCode
 
@@ -80,8 +82,18 @@ def edit_category_by_name(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Category not found",
         )
-    category.name = request.new_name
-    category.description = request.description
+    if request.new_name is not None:
+        check_category = (
+            db.query(Category).filter(Category.name == request.new_name).first()
+        )
+        if check_category and request.new_name != request.old_name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Another category with the new name already exists",
+            )
+        category.name = request.new_name
+    if request.description is not None:
+        category.description = request.description
     db.commit()
     db.refresh(category)
     return EditCategoryByNameResponse(
@@ -113,6 +125,27 @@ def delete_category_by_name(
         resultMessage=ResultMessage(
             en="Category deleted successfully",
             vn=ResultCode.SUCCESS_CATEGORY_DELETED.value[1],
+        ),
+    )
+
+
+@router.post("/id/", response_model=GetCategoryByIDResponse)
+def get_category_by_id(
+    request: GetCategoryByIDRequest,
+    db: Session = Depends(get_db),
+):
+    category = db.query(Category).filter(Category.id == request.id).first()
+    if not category:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Category not found",
+        )
+    return GetCategoryByIDResponse(
+        category=CategoryData.model_validate(category),
+        resultCode=ResultCode.SUCCESS_CATEGORY_FETCHED.value[0],
+        resultMessage=ResultMessage(
+            en="Category fetched successfully",
+            vn=ResultCode.SUCCESS_CATEGORY_FETCHED.value[1],
         ),
     )
 

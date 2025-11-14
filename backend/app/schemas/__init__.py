@@ -25,6 +25,8 @@ from .category import (
     EditCategoryByNameResponse,
     GetAllCategoriesRequest,
     GetAllCategoriesResponse,
+    GetCategoryByIDRequest,
+    GetCategoryByIDResponse,
 )
 from .unit import (
     CreateUnitRequest,
@@ -127,5 +129,7 @@ __all__ = [
     "EditCategoryByNameResponse",
     "DeleteCategoryByNameRequest",
     "DeleteCategoryByNameResponse",
+    "GetCategoryByIDRequest",
+    "GetCategoryByIDResponse",
     "CategoryData",
 ]

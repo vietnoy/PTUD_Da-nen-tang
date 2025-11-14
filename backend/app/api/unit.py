@@ -159,7 +159,7 @@ def delete_unit(
     )
 
 
-@router.get("/id", response_model=GetUnitByIdResponse)
+@router.post("/id", response_model=GetUnitByIdResponse)
 def get_unit_by_id(
     request: GetUnitById,
     _: User = Depends(get_current_user),

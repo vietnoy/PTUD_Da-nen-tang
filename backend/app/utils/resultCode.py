@@ -86,7 +86,7 @@ class ResultCode(Enum):
         "Không tìm thấy category với tên cung cấp",
     )
     ERROR_MISSING_CATEGORY_NAME_DELETE = ("00142", "Thiếu thông tin tên của category")
-
+    SUCCESS_CATEGORY_FETCHED = ("00130", "Lấy category thành công")
     # --- Mã Lỗi Chung & Server (GENERAL / SERVER CODES) ---
     ERROR_MISSING_FIELDS_SEND_CODE = (
         "00005",

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 from .base import BaseResponse
@@ -10,7 +12,7 @@ class CategoryData(BaseModel):
     id: int
     name: str
     description: str | None = None
-    created_at: str = Field(..., alias="createdAt")
+    created_at: datetime = Field(..., alias="createdAt")
 
     model_config = {"from_attributes": True, "populate_by_name": True}
 
@@ -47,7 +49,7 @@ class EditCategoryByNameRequest(BaseModel):
     """Request body for editing a category by name."""
 
     old_name: str = Field(..., min_length=1, max_length=50)
-    new_name: str = Field(..., min_length=1, max_length=50)
+    new_name: str | None = Field(None, min_length=1, max_length=50)
     description: str | None = Field(None, max_length=500)
 
 
@@ -68,3 +70,15 @@ class DeleteCategoryByNameResponse(BaseResponse):
     """Response after successful category deletion."""
 
     pass
+
+
+class GetCategoryByIDRequest(BaseModel):
+    """Request body for getting a category by ID."""
+
+    id: int
+
+
+class GetCategoryByIDResponse(BaseResponse):
+    """Response after successful retrieval of category by ID."""
+
+    category: CategoryData
