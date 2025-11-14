@@ -1,7 +1,19 @@
 """Food-related database models."""
-from datetime import datetime, date
+
+from datetime import date, datetime
 from decimal import Decimal
-from sqlalchemy import Boolean, Date, DateTime, ForeignKey, Integer, Numeric, String, Text, func
+
+from sqlalchemy import (
+    Boolean,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Text,
+    func,
+)
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import Base
@@ -13,13 +25,9 @@ class Category(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
     description: Mapped[str | None] = mapped_column(Text)
-    color: Mapped[str | None] = mapped_column(String(7))  # hex color
-    icon: Mapped[str | None] = mapped_column(String(50))
-    group_id: Mapped[int | None] = mapped_column(ForeignKey("groups.id"))
-    sort_order: Mapped[int] = mapped_column(Integer, default=0)
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_by: Mapped[int | None] = mapped_column(ForeignKey("users.id"))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
 
 class Unit(Base):
@@ -27,13 +35,12 @@ class Unit(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(20))
-    symbol: Mapped[str | None] = mapped_column(String(10))
     type: Mapped[str] = mapped_column(String(20))  # weight, volume, count, length
     base_unit_id: Mapped[int | None] = mapped_column(ForeignKey("units.id"))
     conversion_factor: Mapped[Decimal | None] = mapped_column(Numeric(10, 6))
-    group_id: Mapped[int | None] = mapped_column(ForeignKey("groups.id"))
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
 
 class Food(Base):
@@ -52,8 +59,12 @@ class Food(Base):
     group_id: Mapped[int] = mapped_column(ForeignKey("groups.id"))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
 
 class FridgeItem(Base):
@@ -72,5 +83,9 @@ class FridgeItem(Base):
     opened_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     cost: Mapped[Decimal | None] = mapped_column(Numeric(8, 2))
     created_by: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
