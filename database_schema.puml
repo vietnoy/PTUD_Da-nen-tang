@@ -1,0 +1,208 @@
+@startuml Database Schema
+!define TABLE(name,desc) entity name as "desc"
+!define COLUMN(col) col
+!define PK(col) <b>col</b>
+!define FK(col) <i>col</i>
+
+' Database Schema for Food Management System
+title Food Management System - Database Schema
+
+' Users table
+entity "users" {
+  + PK(id): int
+  --
+  * email: varchar(255) <<unique>>
+  * password_hash: varchar(255)
+  * name: varchar(100)
+  username: varchar(50) <<unique>>
+  type: varchar(20)
+  language: varchar(5) = 'en'
+  gender: varchar(10)
+  country_code: varchar(10)
+  timezone: int = 0
+  birth_date: date
+  photo_url: varchar(500)
+  avatar_url: varchar(500)
+  is_activated: boolean = true
+  is_active: boolean = true
+  is_verified: boolean = false
+  device_id: varchar(255)
+  belongs_to_group_admin_id: int = 0
+  created_at: datetime
+  updated_at: datetime
+}
+
+' Groups table
+entity "groups" {
+  + PK(id): int
+  --
+  * name: varchar(100)
+  description: text
+  * FK(owner_id): int
+  invite_code: varchar(20) <<unique>>
+  is_active: boolean = true
+  created_at: datetime
+  updated_at: datetime
+}
+
+' Group Members table
+entity "group_members" {
+  + PK(id): int
+  --
+  * FK(user_id): int
+  * FK(group_id): int
+  role: varchar(20) = 'member'
+  is_active: boolean = true
+  joined_at: datetime
+  left_at: datetime
+}
+
+' Categories table
+entity "categories" {
+  + PK(id): int
+  --
+  * name: varchar(50)
+  description: text
+  created_at: datetime
+}
+
+' Units table
+entity "units" {
+  + PK(id): int
+  --
+  * name: varchar(20)
+  * type: varchar(20)
+  FK(base_unit_id): int
+  conversion_factor: decimal(10,6)
+  created_at: datetime
+}
+
+' Foods table
+entity "foods" {
+  + PK(id): int
+  --
+  * name: varchar(100)
+  description: text
+  FK(category_id): int
+  * FK(unit_id): int
+  image_url: varchar(500)
+  barcode: varchar(50)
+  brand: varchar(50)
+  default_shelf_life_days: int
+  storage_instructions: text
+  * FK(group_id): int
+  is_active: boolean = true
+  * FK(created_by): int
+  created_at: datetime
+  updated_at: datetime
+}
+
+' Fridge Items table
+entity "fridge_items" {
+  + PK(id): int
+  --
+  * FK(food_id): int
+  * FK(group_id): int
+  * quantity: decimal(8,3)
+  FK(unit_id): int
+  note: text
+  purchase_date: date
+  * use_within_date: date
+  location: varchar(50)
+  is_opened: boolean = false
+  opened_at: datetime
+  cost: decimal(8,2)
+  * FK(created_by): int
+  created_at: datetime
+  updated_at: datetime
+}
+
+' Shopping Lists table
+entity "shopping_lists" {
+  + PK(id): int
+  --
+  * name: varchar(100)
+  description: text
+  * FK(group_id): int
+  FK(assign_to_user_id): int
+  due_date: date
+  priority: varchar(10) = 'medium'
+  status: varchar(20) = 'active'
+  budget: decimal(10,2)
+  total_cost: decimal(10,2) = 0
+  is_archived: boolean = false
+  * FK(created_by): int
+  created_at: datetime
+  updated_at: datetime
+}
+
+' Shopping Tasks table
+entity "shopping_tasks" {
+  + PK(id): int
+  --
+  * FK(list_id): int
+  * FK(food_id): int
+  * quantity: decimal(8,3)
+  FK(unit_id): int
+  note: text
+  estimated_cost: decimal(8,2)
+  actual_cost: decimal(8,2)
+  priority: varchar(10) = 'medium'
+  is_done: boolean = false
+  done_at: datetime
+  FK(done_by): int
+  created_at: datetime
+  updated_at: datetime
+}
+
+' Relationships
+users ||--o{ groups : "owns (owner_id)"
+users ||--o{ group_members : "belongs to (user_id)"
+groups ||--o{ group_members : "has members (group_id)"
+groups ||--o{ foods : "contains (group_id)"
+groups ||--o{ fridge_items : "stores (group_id)"
+groups ||--o{ shopping_lists : "manages (group_id)"
+
+categories ||--o{ foods : "categorizes (category_id)"
+units ||--o{ foods : "measures (unit_id)"
+units ||--o{ units : "base unit (base_unit_id)"
+units ||--o{ fridge_items : "measures (unit_id)"
+units ||--o{ shopping_tasks : "measures (unit_id)"
+
+foods ||--o{ fridge_items : "stored as (food_id)"
+foods ||--o{ shopping_tasks : "to buy (food_id)"
+
+users ||--o{ foods : "creates (created_by)"
+users ||--o{ fridge_items : "adds (created_by)"
+users ||--o{ shopping_lists : "creates (created_by)"
+users ||--o{ shopping_lists : "assigned to (assign_to_user_id)"
+users ||--o{ shopping_tasks : "completes (done_by)"
+
+shopping_lists ||--o{ shopping_tasks : "contains (list_id)"
+
+note top of users
+  Core user entity with authentication
+  and profile information
+end note
+
+note top of groups
+  Groups allow users to share
+  food inventory and shopping lists
+end note
+
+note top of foods
+  Food items with nutritional and
+  storage information
+end note
+
+note top of fridge_items
+  Current inventory of food items
+  in the group's storage
+end note
+
+note top of shopping_lists
+  Shopping lists with tasks
+  assigned to group members
+end note
+
+@enduml
