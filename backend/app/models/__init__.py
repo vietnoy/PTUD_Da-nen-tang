@@ -4,6 +4,8 @@ from .user import User
 from .group import Group, GroupMember
 from .food import Category, Unit, Food, FridgeItem
 from .shopping import ShoppingList, ShoppingTask
+from .meal_plan import MealPlan
+from .recipe import Recipe
 
 __all__ = [
     "Base",
@@ -16,4 +18,6 @@ __all__ = [
     "FridgeItem",
     "ShoppingList",
     "ShoppingTask",
+    "MealPlan",
+    "Recipe",
 ]
