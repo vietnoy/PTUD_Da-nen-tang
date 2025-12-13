@@ -1,6 +1,9 @@
-from .base import UserData, BaseResponse
-from pydantic import BaseModel, Field
 from typing import List, Optional
+
+from pydantic import BaseModel, Field
+
+from .base import BaseResponse, UserData
+
 
 class CreateGroupRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
@@ -16,12 +19,15 @@ class CreateGroupResponse(BaseResponse):
 class AddMemberRequest(BaseModel):
     invite_code: str = Field(..., min_length=6, max_length=6, alias="inviteCode")
 
+
 class AddMemberResponse(BaseResponse):
     pass
 
+
 class RemoveMemberRequest(BaseModel):
-    user_id: int = Field(...)
+    user_name: str = Field(...)
     group_id: int = Field(...)
+
 
 class RemoveMemberResponse(BaseResponse):
     pass
