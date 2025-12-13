@@ -1,4 +1,5 @@
 """Application settings loaded from environment variables."""
+
 from functools import lru_cache
 from typing import Any, Dict, List
 
@@ -9,7 +10,7 @@ class Settings(BaseSettings):
     project_name: str = "Di Cho Tien Loi API"
     api_v1_prefix: str = "/api/v1"
     secret_key: str = "change-me"
-    access_token_expires_minutes: int = 15
+    access_token_expires_minutes: int = 150
     refresh_token_expires_minutes: int = 60 * 24 * 7
     backend_cors_origins: str = "*"
 

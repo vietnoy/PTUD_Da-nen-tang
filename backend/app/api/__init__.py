@@ -4,6 +4,7 @@ from fastapi import APIRouter
 
 from .auth import router as auth_router
 from .category import router as category_router
+from .food import router as food_router
 from .fridge import router as fridge_router
 from .group import router as group_router
 from .meal_plans import router as meal_plans_router
@@ -22,4 +23,5 @@ api_router.include_router(fridge_router)
 api_router.include_router(shopping_router)
 api_router.include_router(meal_plans_router)
 api_router.include_router(recipes_router)
+api_router.include_router(food_router)
 __all__ = ["api_router"]

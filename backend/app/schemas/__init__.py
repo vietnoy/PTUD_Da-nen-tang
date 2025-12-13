@@ -28,6 +28,17 @@ from .category import (
     GetCategoryByIDRequest,
     GetCategoryByIDResponse,
 )
+from .food import (
+    CreateFoodRequest,
+    CreateFoodResponse,
+    DeleteFoodByNameRequest,
+    DeleteFoodByNameResponse,
+    EditFoodByNameRequest,
+    EditFoodByNameResponse,
+    FoodData,
+    GetAllFoodsRequest,
+    GetAllFoodsResponse,
+)
 from .unit import (
     CreateUnitRequest,
     CreateUnitResponse,
@@ -132,4 +143,14 @@ __all__ = [
     "GetCategoryByIDRequest",
     "GetCategoryByIDResponse",
     "CategoryData",
+    # Food
+    "CreateFoodRequest",
+    "CreateFoodResponse",
+    "GetAllFoodsRequest",
+    "GetAllFoodsResponse",
+    "EditFoodByNameRequest",
+    "EditFoodByNameResponse",
+    "DeleteFoodByNameRequest",
+    "DeleteFoodByNameResponse",
+    "FoodData",
 ]

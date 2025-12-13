@@ -40,9 +40,7 @@ def create_recipe(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -64,7 +62,6 @@ def create_recipe(
             .filter(
                 Food.name == food_name,
                 Food.group_id == group_member.group_id,
-                Food.is_active == True,
             )
             .first()
         )
@@ -118,9 +115,7 @@ def get_recipes(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -151,9 +146,7 @@ def get_recipe_by_id(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -204,9 +197,7 @@ def update_recipe(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -243,7 +234,6 @@ def update_recipe(
             .filter(
                 Food.name == new_food_name,
                 Food.group_id == group_member.group_id,
-                Food.is_active == True,
             )
             .first()
         )
@@ -298,9 +288,7 @@ def delete_recipe(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
