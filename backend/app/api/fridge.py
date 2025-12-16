@@ -34,9 +34,7 @@ def create_fridge_item(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -50,7 +48,6 @@ def create_fridge_item(
         .filter(
             Food.name == request.food_name,
             Food.group_id == group_member.group_id,
-            Food.is_active == True,
         )
         .first()
     )
@@ -102,9 +99,7 @@ def get_fridge_items(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -114,9 +109,7 @@ def get_fridge_items(
         )
 
     fridge_items = (
-        db.query(FridgeItem)
-        .filter(FridgeItem.group_id == group_member.group_id)
-        .all()
+        db.query(FridgeItem).filter(FridgeItem.group_id == group_member.group_id).all()
     )
 
     fridge_items_data = [_build_fridge_item_data(db, item) for item in fridge_items]
@@ -139,9 +132,7 @@ def get_fridge_item_by_id(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -183,9 +174,7 @@ def update_fridge_item(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -247,9 +236,7 @@ def delete_fridge_item(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:

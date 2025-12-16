@@ -44,9 +44,7 @@ def create_shopping_list(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -63,7 +61,9 @@ def create_shopping_list(
 
     assign_to_user_id = None
     if request.assign_to_username:
-        assign_to_user = db.query(User).filter(User.username == request.assign_to_username).first()
+        assign_to_user = (
+            db.query(User).filter(User.username == request.assign_to_username).first()
+        )
         if not assign_to_user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -122,9 +122,7 @@ def get_shopping_lists(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -159,9 +157,7 @@ def get_shopping_list_by_id(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -170,9 +166,7 @@ def get_shopping_list_by_id(
             detail="User is not in any group",
         )
 
-    shopping_list = (
-        db.query(ShoppingList).filter(ShoppingList.id == request.id).first()
-    )
+    shopping_list = db.query(ShoppingList).filter(ShoppingList.id == request.id).first()
     if not shopping_list:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -188,9 +182,7 @@ def get_shopping_list_by_id(
     list_data = _build_shopping_list_data(db, shopping_list)
 
     tasks = (
-        db.query(ShoppingTask)
-        .filter(ShoppingTask.list_id == shopping_list.id)
-        .all()
+        db.query(ShoppingTask).filter(ShoppingTask.list_id == shopping_list.id).all()
     )
     tasks_data = [_build_shopping_task_data(db, task) for task in tasks]
 
@@ -213,9 +205,7 @@ def update_shopping_list(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -224,9 +214,7 @@ def update_shopping_list(
             detail="User is not in any group",
         )
 
-    shopping_list = (
-        db.query(ShoppingList).filter(ShoppingList.id == request.id).first()
-    )
+    shopping_list = db.query(ShoppingList).filter(ShoppingList.id == request.id).first()
     if not shopping_list:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -243,7 +231,11 @@ def update_shopping_list(
         shopping_list.name = request.new_name
 
     if request.new_assign_to_username is not None:
-        assign_to_user = db.query(User).filter(User.username == request.new_assign_to_username).first()
+        assign_to_user = (
+            db.query(User)
+            .filter(User.username == request.new_assign_to_username)
+            .first()
+        )
         if not assign_to_user:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -296,9 +288,7 @@ def delete_shopping_list(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -307,9 +297,7 @@ def delete_shopping_list(
             detail="User is not in any group",
         )
 
-    shopping_list = (
-        db.query(ShoppingList).filter(ShoppingList.id == request.id).first()
-    )
+    shopping_list = db.query(ShoppingList).filter(ShoppingList.id == request.id).first()
     if not shopping_list:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -346,9 +334,7 @@ def add_tasks_to_list(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -385,7 +371,6 @@ def add_tasks_to_list(
             .filter(
                 Food.name == task_input.food_name,
                 Food.group_id == group_member.group_id,
-                Food.is_active == True,
             )
             .first()
         )
@@ -439,9 +424,7 @@ def update_shopping_task(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -457,7 +440,9 @@ def update_shopping_task(
             detail="Shopping task not found",
         )
 
-    shopping_list = db.query(ShoppingList).filter(ShoppingList.id == task.list_id).first()
+    shopping_list = (
+        db.query(ShoppingList).filter(ShoppingList.id == task.list_id).first()
+    )
     if shopping_list.group_id != group_member.group_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -510,9 +495,7 @@ def delete_shopping_task(
 ):
     group_member = (
         db.query(GroupMember)
-        .filter(
-            GroupMember.user_id == current_user.id, GroupMember.is_active == True
-        )
+        .filter(GroupMember.user_id == current_user.id, GroupMember.is_active == True)
         .first()
     )
     if not group_member:
@@ -528,7 +511,9 @@ def delete_shopping_task(
             detail="Shopping task not found",
         )
 
-    shopping_list = db.query(ShoppingList).filter(ShoppingList.id == task.list_id).first()
+    shopping_list = (
+        db.query(ShoppingList).filter(ShoppingList.id == task.list_id).first()
+    )
     if shopping_list.group_id != group_member.group_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
