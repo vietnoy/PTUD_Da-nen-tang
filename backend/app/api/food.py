@@ -56,6 +56,7 @@ def create_food(
         category_name=category.name,
         unit_id=unit.id,
         unit_name=unit.name,
+        group_id=request.group_id,
         created_by=user.id,
         description=request.description,
         image_url=request.image_url,
@@ -123,6 +124,8 @@ def edit_food_by_name(
                 detail="Unit with this name does not exist",
             )
         food.unit_id = unit.id
+    if request.group_id is not None:
+        food.group_id = request.group_id
     if request.description is not None:
         food.description = request.description
     if request.image_url is not None:

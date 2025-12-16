@@ -58,7 +58,6 @@ def create_meal_plan(
         .filter(
             Food.name == request.food_name,
             Food.group_id == group_member.group_id,
-            Food.is_active == True,
         )
         .first()
     )
@@ -235,8 +234,7 @@ def update_meal_plan(
             db.query(Food)
             .filter(
                 Food.name == request.new_food_name,
-                Food.group_id == group_member.group_id,
-                Food.is_active == True,
+                Food.group_id == group_member.group_id
             )
             .first()
         )

@@ -15,6 +15,7 @@ class FoodData(BaseModel):
     unit_name: str | None = None
     category_id: int | None = None
     unit_id: int | None = None
+    group_id: int | None = None
     description: str | None = None
     image_url: str | None = None
     brand: str | None = None
@@ -34,6 +35,7 @@ class CreateFoodRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     category_name: str | None = None
     unit_name: str | None = None
+    group_id: int | None = None
     description: str | None = Field(None, max_length=500)
     image_url: str | None = Field(None, max_length=500)
     brand: str | None = Field(None, max_length=50)
@@ -68,6 +70,7 @@ class EditFoodByNameRequest(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=100)
     category_name: str | None = None
     unit_name: str | None = None
+    group_id: int | None = None
     description: str | None = Field(None, max_length=500)
     image_url: str | None = Field(None, max_length=500)
     brand: str | None = Field(None, max_length=50)
