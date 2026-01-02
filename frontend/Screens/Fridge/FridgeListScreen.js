@@ -23,42 +23,10 @@ export default function FridgeListScreen({ navigation }) {
   const warning = filteredData.filter(i => i.daysLeft <= 3);
   const good = filteredData.filter(i => i.daysLeft > 3);
 
-  // /* ===== ITEM ===== */
-  //  const renderItem = ({ item }) => (
-  // //    <View style={styles.item}>
-  // //      <View style={styles.image} />
-  // //      <View style={{ flex: 1 }}>
-  // //        <Text style={styles.name}>{item.name}</Text>
-  // //        <Text style={styles.sub}>
-  // //          {item.quantity} • Còn {item.daysLeft} ngày
-  // //        </Text>
-  // //      </View>
-  // //      <Ionicons name="ellipsis-vertical" size={18} color="gray" />
-  // //    </View>
-  // //  );
-  // <TouchableOpacity 
-  //     style={styles.item}
-  //     onPress={() => navigation.navigate('FoodDetail', { item })} // Truyền dữ liệu sang FoodDetail
-  //   >
-  //     <View style={styles.image}>
-  //        <Ionicons name="nutrition-outline" size={20} color="#ccc" />
-  //     </View>
-  //     <View style={{ flex: 1 }}>
-  //       <Text style={styles.name}>{item.name}</Text>
-  //       <Text style={styles.sub}>
-  //         {item.quantity} • Còn {item.daysLeft} ngày
-  //       </Text>
-  //     </View>
-  //     <Ionicons name="chevron-forward" size={18} color="gray" />
-  //   </TouchableOpacity>
-  // );
-
   /* ===== ITEM ===== */
   const renderItem = ({ item }) => (
     <TouchableOpacity 
       style={styles.item}
-      // VỊ TRÍ SỬA: Đảm bảo truyền tham số là { item } 
-      // để bên FoodDetail có thể lấy dữ liệu động
       onPress={() => navigation.navigate('FoodDetail', { item })} 
     >
       <View style={styles.image}>
@@ -75,22 +43,12 @@ export default function FridgeListScreen({ navigation }) {
   );
  
    return (
-    //  <View style={styles.container}>
-    //    {/* HEADER */}
-    //    <View style={styles.header}>
-    //      <Text style={styles.title}>Tủ lạnh</Text>
-    //      <View style={{ flexDirection: 'row' }}>
-    //        <Ionicons name="search" size={22} />
-    //        <Ionicons name="add" size={26} style={{ marginLeft: 12 }} />
-    //      </View>
-    //    </View>
     <View style={styles.container}>
       {/* HEADER */}
       <View style={styles.header}>
         <Text style={styles.title}>Tủ lạnh</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Ionicons name="search" size={22} />
-          {/* SỬA TẠI ĐÂY: Bọc nút thêm trong TouchableOpacity để nhấn được */}
           <TouchableOpacity onPress={() => navigation.navigate('AddFood')}>
             <Ionicons name="add" size={30} color="#4CAF50" style={{ marginLeft: 12 }} />
           </TouchableOpacity>
