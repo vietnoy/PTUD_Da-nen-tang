@@ -4,14 +4,38 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 
-// import FridgeScreen from './FridgeScreen';
 import FridgeListScreen from './Fridge/FridgeListScreen';
 import AddFoodScreen from './Fridge/AddFoodScreen';
 import FoodDetailScreen from './Fridge/FoodDetailScreen';
 import ProfileScreen from './ProfileScreen';
+import MealPlanScreen from './MealPlan/MealPlanScreen';
+import EditMealPlanScreen from './MealPlan/EditMealPlanScreen';
 
 const Tab = createBottomTabNavigator();
 const FridgeStack = createNativeStackNavigator();
+const MenuStack = createNativeStackNavigator();
+
+function MenuStackScreen() {
+  return (
+    <MenuStack.Navigator>
+      <MenuStack.Screen 
+        name="MealPlanList" 
+        component={MealPlanScreen} 
+        options={{ headerShown: false }} 
+      />
+      <MenuStack.Screen 
+        name="EditMealPlan" 
+        component={EditMealPlanScreen} 
+        options={{ headerShown: false }} 
+      />
+      <MenuStack.Screen
+        name="AddMealPlan"
+        component={EditMealPlanScreen}
+        options={{ headerShown: false }}
+      />
+    </MenuStack.Navigator>
+  );
+}
 
 function FridgeStackScreen() {
   return (
@@ -53,28 +77,6 @@ function ShoppingTab() {
   );
 }
 
-function MenuTab() {
-  return (
-    <View style={styles.screen}>
-      <Text>Thực đơn</Text>
-    </View>
-  );
-}
-
-// function ProfileTab() {
-//   return (
-//     <View style={styles.screen}>
-//       <Text>Cá nhân</Text>
-//     </View>
-//   );
-// }
-<Tab.Screen 
-  name="Profile" 
-  component={ProfileScreen} // Kết nối trực tiếp tại đây
-  options={{ title: 'Cá nhân' }} 
-/>
-
-
 /* ====== Bottom Tabs ====== */
 export default function HomeScreen() {
   return (
@@ -111,7 +113,7 @@ export default function HomeScreen() {
       <Tab.Screen name="Home" component={HomeTab} options={{ title: 'Home' }} />
       <Tab.Screen name="Fridge" component={FridgeStackScreen} options={{ title: 'Tủ lạnh' }} />
       <Tab.Screen name="Shopping" component={ShoppingTab} options={{ title: 'Mua sắm' }} />
-      <Tab.Screen name="Menu" component={MenuTab} options={{ title: 'Thực đơn' }} />
+      <Tab.Screen name="Menu" component={MenuStackScreen} options={{ title: 'Thực đơn' }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Cá nhân' }} />
     </Tab.Navigator>
   );
