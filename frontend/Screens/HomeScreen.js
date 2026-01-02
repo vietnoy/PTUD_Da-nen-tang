@@ -8,6 +8,7 @@ import { Ionicons } from '@expo/vector-icons';
 import FridgeListScreen from './Fridge/FridgeListScreen';
 import AddFoodScreen from './Fridge/AddFoodScreen';
 import FoodDetailScreen from './Fridge/FoodDetailScreen';
+import ProfileScreen from './ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const FridgeStack = createNativeStackNavigator();
@@ -43,19 +44,6 @@ function HomeTab() {
   );
 }
 
-// function FridgeTab() {
-//   return (
-//     <View style={styles.screen}>
-//       <Text>Tủ lạnh</Text>
-//     </View>
-//   );
-// }
-// <Tab.Screen
-//   name="Fridge"
-//   component={FridgeScreen}
-//   options={{ title: 'Tủ lạnh' }}
-// />
-
 
 function ShoppingTab() {
   return (
@@ -73,13 +61,19 @@ function MenuTab() {
   );
 }
 
-function ProfileTab() {
-  return (
-    <View style={styles.screen}>
-      <Text>Cá nhân</Text>
-    </View>
-  );
-}
+// function ProfileTab() {
+//   return (
+//     <View style={styles.screen}>
+//       <Text>Cá nhân</Text>
+//     </View>
+//   );
+// }
+<Tab.Screen 
+  name="Profile" 
+  component={ProfileScreen} // Kết nối trực tiếp tại đây
+  options={{ title: 'Cá nhân' }} 
+/>
+
 
 /* ====== Bottom Tabs ====== */
 export default function HomeScreen() {
@@ -118,7 +112,7 @@ export default function HomeScreen() {
       <Tab.Screen name="Fridge" component={FridgeStackScreen} options={{ title: 'Tủ lạnh' }} />
       <Tab.Screen name="Shopping" component={ShoppingTab} options={{ title: 'Mua sắm' }} />
       <Tab.Screen name="Menu" component={MenuTab} options={{ title: 'Thực đơn' }} />
-      <Tab.Screen name="Profile" component={ProfileTab} options={{ title: 'Cá nhân' }} />
+      <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Cá nhân' }} />
     </Tab.Navigator>
   );
 }
