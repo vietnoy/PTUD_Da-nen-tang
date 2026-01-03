@@ -1,10 +1,7 @@
 import axios from 'axios';
 import storage from './storage';
 
-// TODO: Thay đổi BASE_URL này thành URL backend thực tế của bạn
-// Ví dụ: 'http://192.168.1.5:3000/api' (IP máy bạn)
-// Hoặc: 'http://localhost:3000/api' (nếu test trên web)
-const BASE_URL = 'http://192.168.1.100:3000/api';
+const BASE_URL = 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: BASE_URL,

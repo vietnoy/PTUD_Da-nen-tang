@@ -5,8 +5,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { Ionicons } from '@expo/vector-icons';
 
 import LoginScreen from './Screens/LoginScreen';
+import RegisterScreen from './Screens/RegisterScreen';
 import HomeScreen from './Screens/HomeScreen';
-// import SettingScreen from './Screens/SettingScreen';
+import VerifyEmailScreen from './Screens/VerifyEmailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,7 +18,23 @@ const App = () => {
           <Stack.Screen
             name="Login"
             component={LoginScreen}
-            options={{ title: '' }}
+            options={{ title: '' ,
+                headerShown: false
+            }}
+          />
+          <Stack.Screen
+            name="Register"
+            component={RegisterScreen}
+            options={{ title: '',
+               headerShown: false
+             }}
+          />
+          <Stack.Screen
+            name="VerifyEmail"
+            component={VerifyEmailScreen}
+            options={{ title: '',
+               headerShown: false
+             }}
           />
           <Stack.Screen
             name="Home"

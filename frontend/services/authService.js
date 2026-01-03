@@ -2,12 +2,22 @@ import api from './api';
 import storage from './storage';
 
 const authService = {
-  /**
-   * Đăng nhập
-   * @param {string} email - Email người dùng
-   * @param {string} password - Mật khẩu
-   * @returns {Promise} - Trả về data từ API
-   */
+  register: (payload) => {
+  try{
+    return apiClient.post('/register', {
+    email: payload.email,
+    password: payload.password,
+    name: payload.name,
+    language: payload.language,
+    timezone: payload.timezone,
+    deviceId: payload.deviceId,
+    user_name: payload.user_name,
+  });
+  } catch (error){
+    console.error('Register service error:', error);
+    throw error;
+  };
+  },
   login: async (email, password) => {
     try {
       // Gọi API login

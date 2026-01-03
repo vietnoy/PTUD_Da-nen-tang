@@ -184,7 +184,7 @@ export default function LoginScreen({ navigation }) {
           {/* Register Link */}
           <View style={styles.registerContainer}>
             <Text style={styles.registerText}>Chưa có tài khoản? </Text>
-            <TouchableOpacity onPress={handleGoToRegister} disabled={loading}>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')} disabled={loading}>
               <Text style={styles.registerLink}>Đăng ký ngay</Text>
             </TouchableOpacity>
           </View>

@@ -7,12 +7,21 @@ import { Ionicons } from '@expo/vector-icons';
 import FridgeListScreen from './Fridge/FridgeListScreen';
 import AddFoodScreen from './Fridge/AddFoodScreen';
 import FoodDetailScreen from './Fridge/FoodDetailScreen';
+import ShoppingListScreen from './Shopping/ShoppingListScreen';
+import ShoppingDetailScreen from './Shopping/ShoppingDetailScreen';
+import AddShoppingListScreen from './Shopping/AddShoppingListScreen';
+import AddProductScreen from './Shopping/AddProductScreen';
+import AddGroupScreen from './Home/AddGroupScreen';
+import AddPeopleScreen from './Home/AddPeopleScreen';
+import GroupDetailScreen from './Home/GroupDetailScreen';
 import ProfileScreen from './ProfileScreen';
 import MealPlanScreen from './MealPlan/MealPlanScreen';
 import EditMealPlanScreen from './MealPlan/EditMealPlanScreen';
 
 const Tab = createBottomTabNavigator();
 const FridgeStack = createNativeStackNavigator();
+const ShoppingStack = createNativeStackNavigator();
+const HomeStack = createNativeStackNavigator();
 const MenuStack = createNativeStackNavigator();
 
 function MenuStackScreen() {
@@ -58,24 +67,65 @@ function FridgeStackScreen() {
     </FridgeStack.Navigator>
   );
 }
-
-/* ====== Các màn hình TRỐNG ====== */
-function HomeTab() {
+function ShoppingStackScreen() {
   return (
-    <View style={styles.screen}>
-      <Text>Home</Text>
-    </View>
+    <ShoppingStack.Navigator>
+      <ShoppingStack.Screen
+        name="ShoppingList"
+        component={ShoppingListScreen}
+        options={{ headerShown: false }}
+      /><ShoppingStack.Screen
+        name="ShoppingDetail"
+        component={ShoppingDetailScreen}
+        options={{ title: '' ,
+                headerShown: false
+        }}
+      />
+      <ShoppingStack.Screen
+        name="AddProduct"
+        component={AddProductScreen}
+        options={{ title: '',
+                headerShown: false
+         }}
+      />
+      <ShoppingStack.Screen
+        name="AddShoppingList"
+        component={AddShoppingListScreen}
+        options={{ headerShown: false }}
+      />
+    </ShoppingStack.Navigator>
   );
 }
 
 
-function ShoppingTab() {
+
+function HomeStackScreen() {
   return (
-    <View style={styles.screen}>
-      <Text>Mua sắm</Text>
-    </View>
+    <HomeStack.Navigator>
+      <HomeStack.Screen
+        name="GroupDetail"
+        component={GroupDetailScreen}
+        options={{ headerShown: false }}
+      />
+      <HomeStack.Screen
+        name="AddPeople"
+        component={AddPeopleScreen}
+        options={{ title: '',
+                headerShown: false
+         }}
+      />
+      <HomeStack.Screen
+        name="AddGroup"
+        component={AddGroupScreen}
+        options={{ title: '',
+                headerShown: false
+         }}
+      />
+    </HomeStack.Navigator>
   );
 }
+
+
 
 /* ====== Bottom Tabs ====== */
 export default function HomeScreen() {
@@ -110,9 +160,9 @@ export default function HomeScreen() {
         tabBarInactiveTintColor: 'gray',
       })}
     >
-      <Tab.Screen name="Home" component={HomeTab} options={{ title: 'Home' }} />
+      <Tab.Screen name="Home" component={HomeStackScreen} options={{ title: 'Home' }} />
       <Tab.Screen name="Fridge" component={FridgeStackScreen} options={{ title: 'Tủ lạnh' }} />
-      <Tab.Screen name="Shopping" component={ShoppingTab} options={{ title: 'Mua sắm' }} />
+      <Tab.Screen name="Shopping" component={ShoppingStackScreen} options={{ title: 'Mua sắm' }} />
       <Tab.Screen name="Menu" component={MenuStackScreen} options={{ title: 'Thực đơn' }} />
       <Tab.Screen name="Profile" component={ProfileScreen} options={{ title: 'Cá nhân' }} />
     </Tab.Navigator>
