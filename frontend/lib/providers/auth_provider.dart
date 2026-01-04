@@ -98,6 +98,14 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<void> setActiveGroup(int groupId) async {
+    _groupId = groupId;
+    if (_user != null) {
+      await _saveUserData(_user!, groupId);
+    }
+    notifyListeners();
+  }
+
   Future<bool> register({
     required String email,
     required String password,

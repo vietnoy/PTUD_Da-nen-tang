@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../services/group_service.dart';
 import '../../models/group.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/fridge_provider.dart';
+import '../../providers/meal_plan_provider.dart';
+import '../../providers/shopping_provider.dart';
+import '../../providers/food_provider.dart';
 
 class GroupScreen extends StatefulWidget {
   final int groupId;
@@ -15,16 +21,18 @@ class GroupScreen extends StatefulWidget {
 class _GroupScreenState extends State<GroupScreen> {
   final _groupService = GroupService();
   late Future<Map<String, dynamic>> _groupDataFuture;
+  late int _currentGroupId;
 
   @override
   void initState() {
     super.initState();
-    _groupDataFuture = _groupService.getMembers(widget.groupId);
+    _currentGroupId = widget.groupId;
+    _groupDataFuture = _groupService.getMembers(_currentGroupId);
   }
 
   void _refreshData() {
     setState(() {
-      _groupDataFuture = _groupService.getMembers(widget.groupId);
+      _groupDataFuture = _groupService.getMembers(_currentGroupId);
     });
   }
 
@@ -59,15 +67,35 @@ class _GroupScreenState extends State<GroupScreen> {
 
     if (result != null && result.isNotEmpty) {
       try {
-        await _groupService.addMember(result);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Member added successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          _refreshData();
+        final resp = await _groupService.addMember(result);
+        final joinedGroupId = resp['groupId'] as int?;
+        if (joinedGroupId != null && mounted) {
+          await context.read<AuthProvider>().setActiveGroup(joinedGroupId);
+
+          // Refresh group-scoped data so the user sees the new group's content
+          await Future.wait([
+            context.read<FridgeProvider>().loadFridgeItems(),
+            context.read<MealPlanProvider>().loadMealPlans(),
+            context.read<ShoppingProvider>().loadShoppingLists(),
+            context.read<FoodProvider>().loadFoods(),
+          ]);
+
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Successfully joined group!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            
+            // Navigate to fresh GroupScreen with new groupId to avoid stale widget state
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GroupScreen(groupId: joinedGroupId),
+              ),
+            );
+          }
         }
       } catch (e) {
         if (mounted) {

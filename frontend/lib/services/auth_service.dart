@@ -152,9 +152,9 @@ class AuthService {
   }) async {
     try {
       final response = await _apiClient.dio.post(
-        '/auth/user/change-password',
+        '/users/change-password',
         data: {
-          'currentPassword': currentPassword,
+          'oldPassword': currentPassword,
           'newPassword': newPassword,
         },
       );

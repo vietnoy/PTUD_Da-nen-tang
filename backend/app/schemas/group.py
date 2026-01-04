@@ -21,7 +21,7 @@ class AddMemberRequest(BaseModel):
 
 
 class AddMemberResponse(BaseResponse):
-    pass
+    group_id: int = Field(..., alias="groupId")
 
 
 class RemoveMemberRequest(BaseModel):

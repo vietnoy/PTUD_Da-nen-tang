@@ -1,5 +1,6 @@
 from ..models import User, Group, GroupMember
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from ..schemas.group import CreateGroupRequest, CreateGroupResponse
 from ..schemas.base import ResultMessage
 from fastapi import HTTPException, status
@@ -67,10 +68,17 @@ class GroupService:
                 detail="The user has already been a member of the group!"
             )
 
+        # Deactivate all previous group memberships for this user
+        db.query(GroupMember).filter(
+            GroupMember.user_id == user_id,
+            GroupMember.is_active == True
+        ).update({"is_active": False, "left_at": func.now()})
+
         group_member = GroupMember(
             user_id=user_id,
             group_id=group_id,
-            role="member"
+            role="member",
+            is_active=True
         )
 
         db.add(group_member)

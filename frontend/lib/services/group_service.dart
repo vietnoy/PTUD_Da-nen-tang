@@ -36,6 +36,7 @@ class GroupService {
       );
 
       return {
+        'groupId': response.data['groupId'],
         'resultCode': response.data['resultCode'],
         'resultMessage': ResultMessage.fromJson(response.data['resultMessage']),
       };

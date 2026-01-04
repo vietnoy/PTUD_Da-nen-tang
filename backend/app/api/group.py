@@ -50,6 +50,7 @@ def add_member(
     GroupService.add_group_member(user_id=current_user.id, db=db, group_id=group.id)
 
     return AddMemberResponse(
+        groupId=group.id,
         resultMessage=ResultMessage(
             en="Join group successfully", vn="Gia nhập nhóm thành công"
         ),
