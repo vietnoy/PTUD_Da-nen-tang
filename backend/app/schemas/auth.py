@@ -16,6 +16,7 @@ class LoginResponse(BaseResponse):
     user: UserData
     access_token: str = Field(..., alias="accessToken")
     refresh_token: str = Field(..., alias="refreshToken")
+    group_id: int = Field(..., alias="groupId")
 
 
 # Register endpoint schemas
@@ -47,6 +48,7 @@ class VerifyEmailResponse(BaseResponse):
     """Response after successful email verification."""
     access_token: str = Field(..., alias="accessToken")
     refresh_token: str = Field(..., alias="refreshToken")
+    group_id: int = Field(..., alias="groupId")
 
 
 # Send verification code endpoint schemas

@@ -369,7 +369,7 @@ def add_tasks_to_list(
         food = (
             db.query(Food)
             .filter(
-                Food.name == task_input.food_name,
+                Food.id == task_input.food_id,
                 Food.group_id == group_member.group_id,
             )
             .first()
@@ -377,20 +377,14 @@ def add_tasks_to_list(
         if not food:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Food '{task_input.food_name}' not found in group",
+                detail="Food not found in group",
             )
-
-        unit_id = None
-        if task_input.unit_name:
-            unit = db.query(Unit).filter(Unit.name == task_input.unit_name).first()
-            if unit:
-                unit_id = unit.id
 
         new_task = ShoppingTask(
             list_id=shopping_list.id,
-            food_id=food.id,
+            food_id=task_input.food_id,
             quantity=task_input.quantity,
-            unit_id=unit_id,
+            unit_id=task_input.unit_id,
             note=task_input.note,
             estimated_cost=task_input.estimated_cost,
             priority=task_input.priority,

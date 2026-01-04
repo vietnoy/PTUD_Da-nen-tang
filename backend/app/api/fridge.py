@@ -46,7 +46,7 @@ def create_fridge_item(
     food = (
         db.query(Food)
         .filter(
-            Food.name == request.food_name,
+            Food.id == request.food_id,
             Food.group_id == group_member.group_id,
         )
         .first()
@@ -57,21 +57,17 @@ def create_fridge_item(
             detail="Food not found in group",
         )
 
-    unit_id = None
-    if request.unit_name:
-        unit = db.query(Unit).filter(Unit.name == request.unit_name).first()
-        if unit:
-            unit_id = unit.id
-
     new_fridge_item = FridgeItem(
-        food_id=food.id,
+        food_id=request.food_id,
         group_id=group_member.group_id,
         quantity=request.quantity,
-        unit_id=unit_id,
+        unit_id=request.unit_id,
         note=request.note,
         purchase_date=request.purchase_date,
         use_within_date=request.use_within_date,
         location=request.location,
+        is_opened=request.is_opened,
+        opened_at=request.opened_at,
         cost=request.cost,
         created_by=current_user.id,
     )
@@ -196,22 +192,32 @@ def update_fridge_item(
             detail="Access denied to this fridge item",
         )
 
-    if request.new_quantity is not None:
-        fridge_item.quantity = request.new_quantity
+    if request.quantity is not None:
+        fridge_item.quantity = request.quantity
 
-    if request.new_note is not None:
-        fridge_item.note = request.new_note
+    if request.unit_id is not None:
+        fridge_item.unit_id = request.unit_id
 
-    if request.new_use_within_date is not None:
-        fridge_item.use_within_date = request.new_use_within_date
+    if request.note is not None:
+        fridge_item.note = request.note
 
-    if request.new_location is not None:
-        fridge_item.location = request.new_location
+    if request.purchase_date is not None:
+        fridge_item.purchase_date = request.purchase_date
+
+    if request.use_within_date is not None:
+        fridge_item.use_within_date = request.use_within_date
+
+    if request.location is not None:
+        fridge_item.location = request.location
 
     if request.is_opened is not None:
         fridge_item.is_opened = request.is_opened
-        if request.is_opened:
-            fridge_item.opened_at = datetime.now()
+
+    if request.opened_at is not None:
+        fridge_item.opened_at = request.opened_at
+
+    if request.cost is not None:
+        fridge_item.cost = request.cost
 
     db.commit()
     db.refresh(fridge_item)

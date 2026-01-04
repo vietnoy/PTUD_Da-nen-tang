@@ -55,6 +55,7 @@ class EditUserRequest(BaseModel):
 
 class EditUserResponse(BaseResponse):
     """Response after successful user profile edit."""
+    user: "UserData" = Field(..., alias="user")
     photo_url: Optional[str] = Field(None, alias="photoUrl")
 
 

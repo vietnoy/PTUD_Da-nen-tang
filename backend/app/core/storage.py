@@ -38,17 +38,24 @@ def upload_file(client: minio.Minio, file: UploadFile, folder, old_url: str):
     # create an unique name for the file before upload it
     object_name = f"{folder}/{uuid.uuid4()}{file_extension}"
 
-    try: 
+    try:
+        # Read file content to get size
+        file_content = file.file.read()
+        file_size = len(file_content)
+
+        # Reset file pointer to beginning
+        file.file.seek(0)
+
         client.put_object(
             bucket_name=settings.minio_bucket,
             object_name=object_name,
             data=file.file,
-            length=-1,
+            length=file_size,
             content_type=file.content_type
         )
         print("Uploading file successfully!")
 
-        return {"public_url": f"{settings.minio_endpoint}/{settings.minio_bucket}/{object_name}"}
+        return {"public_url": f"{settings.minio_public_url}/{settings.minio_bucket}/{object_name}"}
     except Exception as e:
         print(f"Error while uploading file: {e}")
         return None

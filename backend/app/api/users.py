@@ -27,18 +27,30 @@ def get_current_user_profile(current_user: User = Depends(get_current_user)):
 
 @router.put("/me", response_model=EditUserResponse)
 def edit_current_user_profile(
-    file: UploadFile = File(None), 
+    file: UploadFile = File(None),
+    name: str = Form(None),
     username: str = Form(None),
+    language: str = Form(None),
+    timezone: int = Form(None),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)):
 
     """Edit current user profile."""
 
-    # User can edit many fields such as: username or language or anything 
+    # User can edit many fields such as: username, name, language, timezone
     # (except for password cause it has its own api for password changing)
+    if name:
+        current_user.name = name
+
     if username:
         current_user.username = username
-    
+
+    if language:
+        current_user.language = language
+
+    if timezone is not None:
+        current_user.timezone = timezone
+
     photo_url = None
     if file:
         try:
@@ -49,10 +61,13 @@ def edit_current_user_profile(
         response = storage.upload_file(client, file, f"avatar/{current_user.id}", current_user.avatar_url)
         current_user.avatar_url = response["public_url"]
         photo_url = response["public_url"]
-    
-    db.commit()
 
+    db.commit()
+    db.refresh(current_user)
+
+    from ..schemas.base import UserData
     return EditUserResponse(
+        user=UserData.model_validate(current_user),
         resultMessage=ResultMessage(
             en="User information altered successfully",
             vn="Thông tin người dùng đã được thay đổi thành công"

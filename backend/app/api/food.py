@@ -1,10 +1,11 @@
 """Food - related API routes."""
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from ..core.database import get_db
 from ..core.deps import get_current_user
+from ..core import storage
 from ..models import Category, Food, Unit, User
 from ..schemas.base import ResultMessage
 from ..schemas.food import (
@@ -28,41 +29,62 @@ router = APIRouter(prefix="/food", tags=["Foods"])
     "/", response_model=CreateFoodResponse, status_code=status.HTTP_201_CREATED
 )
 def create_food(
-    request: CreateFoodRequest,
+    name: str = Form(...),
+    category_name: str = Form(...),
+    unit_name: str = Form(...),
+    group_id: int = Form(...),
+    description: str = Form(None),
+    brand: str = Form(None),
+    default_shelf_life_days: int = Form(None),
+    storage_instructions: str = Form(None),
+    image: UploadFile = File(None),
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    category = db.query(Category).filter(Category.name == request.category_name).first()
+    category = db.query(Category).filter(Category.name == category_name).first()
     if not category:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Category with this name does not exist",
         )
-    unit = db.query(Unit).filter(Unit.name == request.unit_name).first()
+    unit = db.query(Unit).filter(Unit.name == unit_name).first()
     if not unit:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Unit with this ID does not exist",
         )
-    food = db.query(Food).filter(Food.name == request.name).first()
+    food = db.query(Food).filter(Food.name == name).first()
     if food:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Food with this name already exists",
         )
+
+    # Handle image upload
+    image_url = None
+    if image:
+        try:
+            client = storage.get_minio_client()
+            response = storage.upload_file(client, image, "food", None)
+            if response:
+                image_url = response["public_url"]
+        except Exception as e:
+            print(f"Error uploading image: {e}")
+
     new_food = Food(
-        name=request.name,
+        name=name,
         category_id=category.id,
         category_name=category.name,
         unit_id=unit.id,
         unit_name=unit.name,
-        group_id=request.group_id,
+        group_id=group_id,
         created_by=user.id,
-        description=request.description,
-        image_url=request.image_url,
-        brand=request.brand,
-        default_shelf_life_days=request.default_shelf_life_days,
-        storage_instructions=request.storage_instructions,
+        description=description,
+        image_url=image_url,
+        brand=brand,
+        default_shelf_life_days=default_shelf_life_days,
+        storage_instructions=storage_instructions,
+        is_active=True,
     )
     db.add(new_food)
     db.commit()
@@ -80,8 +102,12 @@ def create_food(
 @router.get("/", response_model=GetAllFoodsResponse)
 def get_all_foods(
     db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
 ):
-    foods = db.query(Food).all()
+    foods = db.query(Food).filter(
+        Food.group_id == user.belongs_to_group_admin_id,
+        Food.is_active == True
+    ).all()
     return GetAllFoodsResponse(
         foods=[FoodData.model_validate(food) for food in foods],
         resultCode=ResultCode.SUCCESS_FOOD_LIST_FETCHED.value[0],
@@ -94,48 +120,69 @@ def get_all_foods(
 
 @router.put("/", response_model=EditFoodByNameResponse)
 def edit_food_by_name(
-    request: EditFoodByNameRequest,
+    foodId: int = Form(...),
+    name: str = Form(None),
+    description: str = Form(None),
+    categoryId: int = Form(None),
+    defaultUnitId: int = Form(None),
+    brand: str = Form(None),
+    default_shelf_life_days: int = Form(None),
+    storage_instructions: str = Form(None),
+    image: UploadFile = File(None),
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    food = db.query(Food).filter(Food.name == request.food_name).first()
+    food = db.query(Food).filter(Food.id == foodId).first()
     if not food:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Food with this name does not exist",
+            detail="Food not found",
         )
-    if request.name is not None:
-        food.name = request.name
-    if request.category_name is not None:
-        category = (
-            db.query(Category).filter(Category.name == request.category_name).first()
-        )
+
+    if name is not None:
+        food.name = name
+
+    if categoryId is not None:
+        category = db.query(Category).filter(Category.id == categoryId).first()
         if not category:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Category with this name does not exist",
+                detail="Category not found",
             )
         food.category_id = category.id
-    if request.unit_name is not None:
-        unit = db.query(Unit).filter(Unit.name == request.unit_name).first()
+        food.category_name = category.name
+
+    if defaultUnitId is not None:
+        unit = db.query(Unit).filter(Unit.id == defaultUnitId).first()
         if not unit:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Unit with this name does not exist",
+                detail="Unit not found",
             )
         food.unit_id = unit.id
-    if request.group_id is not None:
-        food.group_id = request.group_id
-    if request.description is not None:
-        food.description = request.description
-    if request.image_url is not None:
-        food.image_url = request.image_url
-    if request.brand is not None:
-        food.brand = request.brand
-    if request.default_shelf_life_days is not None:
-        food.default_shelf_life_days = request.default_shelf_life_days
-    if request.storage_instructions is not None:
-        food.storage_instructions = request.storage_instructions
+        food.unit_name = unit.name
+
+    if description is not None:
+        food.description = description
+
+    if brand is not None:
+        food.brand = brand
+
+    if default_shelf_life_days is not None:
+        food.default_shelf_life_days = default_shelf_life_days
+
+    if storage_instructions is not None:
+        food.storage_instructions = storage_instructions
+
+    # Handle image upload
+    if image:
+        try:
+            client = storage.get_minio_client()
+            response = storage.upload_file(client, image, "food", food.image_url)
+            if response:
+                food.image_url = response["public_url"]
+        except Exception as e:
+            print(f"Error uploading image: {e}")
 
     db.commit()
     db.refresh(food)
@@ -155,13 +202,14 @@ def delete_food_by_name(
     db: Session = Depends(get_db),
     _: User = Depends(get_current_user),
 ):
-    food = db.query(Food).filter(Food.name == request.food_name).first()
+    food = db.query(Food).filter(Food.id == request.food_id).first()
     if not food:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Food with this name does not exist",
+            detail="Food not found",
         )
-    db.delete(food)
+    # Soft delete by setting is_active to False
+    food.is_active = False
     db.commit()
     return DeleteFoodByNameResponse(
         resultCode=ResultCode.SUCCESS_FOOD_DELETED.value[0],

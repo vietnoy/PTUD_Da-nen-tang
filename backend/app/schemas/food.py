@@ -11,17 +11,18 @@ class FoodData(BaseModel):
 
     id: int
     name: str
-    category_name: str | None = None
-    unit_name: str | None = None
-    category_id: int | None = None
-    unit_id: int | None = None
-    group_id: int | None = None
+    category_name: str | None = Field(None, alias="categoryName")
+    unit_name: str | None = Field(None, alias="unitName")
+    category_id: int | None = Field(None, alias="categoryId")
+    unit_id: int | None = Field(None, alias="unitId")
+    group_id: int | None = Field(None, alias="groupId")
     description: str | None = None
-    image_url: str | None = None
+    image_url: str | None = Field(None, alias="imageUrl")
     brand: str | None = None
-    default_shelf_life_days: int | None = None
-    storage_instructions: str | None = None
-    created_by: int
+    default_shelf_life_days: int | None = Field(None, alias="defaultShelfLifeDays")
+    storage_instructions: str | None = Field(None, alias="storageInstructions")
+    is_active: bool = Field(True, alias="isActive")
+    created_by: int = Field(..., alias="createdBy")
     created_at: datetime = Field(..., alias="createdAt")
     updated_at: datetime = Field(..., alias="updatedAt")
 
@@ -64,18 +65,16 @@ class GetAllFoodsResponse(BaseResponse):
 
 # Edit food endpoint schemas
 class EditFoodByNameRequest(BaseModel):
-    """Request body for editing a food item by name."""
+    """Request body for editing a food item by ID."""
 
-    food_name: str = Field(..., alias="foodName")
+    food_id: int = Field(..., alias="foodId", gt=0)
     name: str | None = Field(None, min_length=1, max_length=100)
-    category_name: str | None = None
-    unit_name: str | None = None
-    group_id: int | None = None
+    category_id: int | None = Field(None, alias="categoryId", gt=0)
+    unit_id: int | None = Field(None, alias="unitId", gt=0)
     description: str | None = Field(None, max_length=500)
-    image_url: str | None = Field(None, max_length=500)
     brand: str | None = Field(None, max_length=50)
-    default_shelf_life_days: int | None = None
-    storage_instructions: str | None = Field(None, max_length=500)
+    default_shelf_life_days: int | None = Field(None, alias="defaultShelfLifeDays")
+    storage_instructions: str | None = Field(None, alias="storageInstructions", max_length=500)
 
     model_config = {"populate_by_name": True}
 
@@ -88,9 +87,9 @@ class EditFoodByNameResponse(BaseResponse):
 
 # Delete food endpoint schemas
 class DeleteFoodByNameRequest(BaseModel):
-    """Request body for deleting a food item by name."""
+    """Request body for deleting a food item by ID."""
 
-    food_name: str = Field(..., alias="foodName")
+    food_id: int = Field(..., alias="foodId", gt=0)
 
     model_config = {"populate_by_name": True}
 

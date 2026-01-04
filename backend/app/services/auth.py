@@ -3,12 +3,14 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from ..models import User
+from ..models.group import Group, GroupMember
 from ..schemas.auth import RegisterRequest, LoginRequest
 from ..core.security import hash_password, verify_password, create_access_token, create_refresh_token, generate_otp_code
 from ..core.config import settings
 from ..workers.celery_app import celery_app
 
 import redis
+import secrets
 from datetime import timedelta
 
 redis_client = redis.from_url(settings.redis_url, decode_responses=True)
@@ -43,6 +45,32 @@ class AuthService:
         db.add(user)
         db.commit()
         db.refresh(user)
+
+        # Create a group for the user
+        group = Group(
+            name=f"{user.name}'s Group",
+            owner_id=user.id,
+            is_active=True,
+            invite_code=secrets.token_urlsafe(4)[:6].upper()
+        )
+        db.add(group)
+        db.commit()
+        db.refresh(group)
+
+        # Add user as owner member of the group
+        group_member = GroupMember(
+            user_id=user.id,
+            group_id=group.id,
+            role="owner",
+            is_active=True
+        )
+        db.add(group_member)
+
+        # Set user's group
+        user.belongs_to_group_admin_id = group.id
+        db.commit()
+        db.refresh(user)
+
         return user
 
     @staticmethod

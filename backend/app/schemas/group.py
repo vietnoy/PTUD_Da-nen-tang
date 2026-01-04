@@ -49,4 +49,5 @@ class MemberInfo(BaseModel):
 class GetGroupMembersResponse(BaseResponse):
     group_id: int = Field(..., alias="groupId")
     group_name: str = Field(..., alias="groupName")
+    invite_code: str | None = Field(None, alias="inviteCode")
     members: List[MemberInfo]

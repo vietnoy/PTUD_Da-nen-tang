@@ -120,6 +120,9 @@ def remove_member(
                 detail="You don't have permission to remove this member",
             )
 
+    # Handle active group switch before removing
+    GroupService.remove_group_member(user_id=user_id, db=db, group_id=request.group_id)
+
     db.delete(target_member)
     db.commit()
 
@@ -192,5 +195,6 @@ def get_group_members(
         resultCode="00103",
         groupId=group.id,
         groupName=group.name,
+        inviteCode=group.invite_code,
         members=member_list,
     )

@@ -66,7 +66,7 @@ class GroupService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="The user has already been a member of the group!"
             )
-        
+
         group_member = GroupMember(
             user_id=user_id,
             group_id=group_id,
@@ -74,4 +74,27 @@ class GroupService:
         )
 
         db.add(group_member)
+
+        # Switch user's active group to the one they're joining
+        user = db.query(User).filter(User.id == user_id).first()
+        if user:
+            user.belongs_to_group_admin_id = group_id
+
+        db.commit()
+
+    @staticmethod
+    def remove_group_member(user_id: str, db: Session, group_id: str):
+        """Handle user leaving/being removed from group."""
+        user = db.query(User).filter(User.id == user_id).first()
+
+        if user and user.belongs_to_group_admin_id == group_id:
+            # User is leaving their active group, switch back to their own group
+            # Find the group where they are owner
+            own_group = db.query(Group).filter(Group.owner_id == user_id).first()
+            if own_group:
+                user.belongs_to_group_admin_id = own_group.id
+            else:
+                # Fallback: set to NULL if no owned group found
+                user.belongs_to_group_admin_id = None
+
         db.commit()

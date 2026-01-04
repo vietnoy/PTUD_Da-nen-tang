@@ -108,12 +108,14 @@ class DeleteShoppingListResponse(BaseResponse):
 
 
 class TaskInput(BaseModel):
-    food_name: str = Field(..., min_length=1, max_length=100, alias="foodName")
+    food_id: int = Field(..., alias="foodId", gt=0)
     quantity: Decimal = Field(..., gt=0)
-    unit_name: str | None = Field(None, max_length=20, alias="unitName")
+    unit_id: int | None = Field(None, alias="unitId", gt=0)
     note: str | None = Field(None, max_length=500)
     estimated_cost: Decimal | None = Field(None, ge=0, alias="estimatedCost")
     priority: str = Field(default="medium")
+
+    model_config = {"populate_by_name": True}
 
 
 class CreateShoppingTasksRequest(BaseModel):

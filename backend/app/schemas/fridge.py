@@ -1,7 +1,7 @@
 from datetime import date, datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from .base import BaseResponse
 
@@ -29,14 +29,30 @@ class FridgeItemData(BaseModel):
 
 
 class CreateFridgeItemRequest(BaseModel):
-    food_name: str = Field(..., min_length=1, max_length=100, alias="foodName")
+    food_id: int = Field(..., alias="foodId", gt=0)
     quantity: Decimal = Field(..., gt=0)
-    unit_name: str | None = Field(None, max_length=20, alias="unitName")
+    unit_id: int | None = Field(None, alias="unitId", gt=0)
     note: str | None = Field(None, max_length=500)
     purchase_date: date | None = Field(None, alias="purchaseDate")
     use_within_date: date = Field(..., alias="useWithinDate")
     location: str | None = Field(None, max_length=50)
+    is_opened: bool = Field(False, alias="isOpened")
+    opened_at: datetime | None = Field(None, alias="openedAt")
     cost: Decimal | None = Field(None, ge=0)
+
+    @field_validator('purchase_date', 'use_within_date', mode='before')
+    @classmethod
+    def convert_datetime_to_date(cls, v):
+        """Convert datetime to date if needed."""
+        if isinstance(v, str):
+            # Parse ISO datetime string and extract date
+            dt = datetime.fromisoformat(v.replace('Z', '+00:00'))
+            return dt.date()
+        elif isinstance(v, datetime):
+            return v.date()
+        return v
+
+    model_config = {"populate_by_name": True}
 
 
 class CreateFridgeItemResponse(BaseResponse):
@@ -67,11 +83,28 @@ class GetFridgeItemByIdResponse(BaseResponse):
 
 class UpdateFridgeItemRequest(BaseModel):
     id: int = Field(..., gt=0)
-    new_quantity: Decimal | None = Field(None, gt=0, alias="newQuantity")
-    new_note: str | None = Field(None, max_length=500, alias="newNote")
-    new_use_within_date: date | None = Field(None, alias="newUseWithinDate")
-    new_location: str | None = Field(None, max_length=50, alias="newLocation")
+    quantity: Decimal | None = Field(None, gt=0)
+    unit_id: int | None = Field(None, alias="unitId", gt=0)
+    note: str | None = Field(None, max_length=500)
+    purchase_date: date | None = Field(None, alias="purchaseDate")
+    use_within_date: date | None = Field(None, alias="useWithinDate")
+    location: str | None = Field(None, max_length=50)
     is_opened: bool | None = Field(None, alias="isOpened")
+    opened_at: datetime | None = Field(None, alias="openedAt")
+    cost: Decimal | None = Field(None, ge=0)
+
+    @field_validator('purchase_date', 'use_within_date', mode='before')
+    @classmethod
+    def convert_datetime_to_date(cls, v):
+        """Convert datetime to date if needed."""
+        if isinstance(v, str):
+            dt = datetime.fromisoformat(v.replace('Z', '+00:00'))
+            return dt.date()
+        elif isinstance(v, datetime):
+            return v.date()
+        return v
+
+    model_config = {"populate_by_name": True}
 
 
 class UpdateFridgeItemResponse(BaseResponse):

@@ -95,7 +95,8 @@ def verify_email(request: VerifyEmailRequest, db: Session = Depends(get_db)):
             ),
             resultCode="00058",
             accessToken=tokens["access_token"],
-            refreshToken=tokens["refresh_token"]
+            refreshToken=tokens["refresh_token"],
+            groupId=user.belongs_to_group_admin_id
         )
     else:
         raise HTTPException(
@@ -154,7 +155,8 @@ def login(login_data: LoginRequest, db: Session = Depends(get_db)):
         resultCode="00047",
         user=UserData.model_validate(user),
         accessToken=tokens["access_token"],
-        refreshToken=tokens["refresh_token"]
+        refreshToken=tokens["refresh_token"],
+        groupId=user.belongs_to_group_admin_id
     )
 
 

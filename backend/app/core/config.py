@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg2://postgres:postgres@db:5432/di_cho"
     redis_url: str = "redis://redis:6379/0"
     minio_endpoint: str = "minio:9000"
+    minio_public_url: str = "http://localhost:9000"
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
     minio_bucket: str = "di-cho-media"
