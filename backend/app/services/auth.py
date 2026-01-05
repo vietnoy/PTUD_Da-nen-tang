@@ -39,7 +39,7 @@ class AuthService:
             password_hash=hash_password(user_data.password),
             name=user_data.name,
             username=user_data.user_name,
-            is_verified=False
+            is_verified=True  # Bỏ qua xác thực email, set True ngay khi đăng ký
         )
 
         db.add(user)

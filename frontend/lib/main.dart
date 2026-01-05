@@ -19,6 +19,7 @@ import 'screens/profile/edit_profile_screen.dart';
 import 'screens/profile/change_password_screen.dart';
 import 'screens/shopping/create_shopping_list_screen.dart';
 import 'screens/meal_plan/add_meal_plan_screen.dart';
+import 'screens/admin/admin_login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -63,7 +64,7 @@ class MyApp extends StatelessWidget {
                     ? const HomeScreen()
                     : const LoginScreen(),
             onGenerateRoute: (settings) {
-              // Auth routes
+              // Public routes - Auth routes (no authentication required)
               if (settings.name == '/login') {
                 return MaterialPageRoute(builder: (_) => const LoginScreen());
               }
@@ -77,7 +78,12 @@ class MyApp extends StatelessWidget {
                 );
               }
 
-              // Protected routes - require authentication
+              // Admin routes - publicly accessible (no user authentication required)
+              if (settings.name == '/admin') {
+                return MaterialPageRoute(builder: (_) => const AdminLoginScreen());
+              }
+
+              // Protected routes - require user authentication
               if (!authProvider.isAuthenticated) {
                 return MaterialPageRoute(builder: (_) => const LoginScreen());
               }

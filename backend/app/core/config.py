@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     secret_key: str = "change-me"
     access_token_expires_minutes: int = 150
     refresh_token_expires_minutes: int = 60 * 24 * 7
-    backend_cors_origins: str = "*"
+    backend_cors_origins: str = "*"  # Cho phép tất cả origins trong development
 
     @property
     def cors_origins(self) -> List[str]:
@@ -27,6 +27,13 @@ class Settings(BaseSettings):
     minio_access_key: str = "minioadmin"
     minio_secret_key: str = "minioadmin"
     minio_bucket: str = "di-cho-media"
+
+    # Admin credentials
+    admin_username: str = "admin"
+    admin_password: str = "admin123"
+
+    # Groq AI Configuration
+    groq_api_key: str = "your-groq-api-key-here"
 
     class Config:
         env_file = ".env"

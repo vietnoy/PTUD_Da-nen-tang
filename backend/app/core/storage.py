@@ -1,8 +1,10 @@
 import minio
+from minio.error import S3Error
 from .config import get_settings
 import uuid
 from fastapi import UploadFile
 from pathlib import Path
+import json
 
 # load setting from pre-defined configs
 settings = get_settings()
@@ -23,8 +25,42 @@ def _ensure_bucket(client: minio.Minio, bucket_name: str):
     if not client.bucket_exists(bucket_name):
         client.make_bucket(bucket_name)
         print(f"Created bucket name: {bucket_name}")
+        
+        # Set bucket policy to public read
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "*"},
+                    "Action": ["s3:GetObject"],
+                    "Resource": [f"arn:aws:s3:::{bucket_name}/*"]
+                }
+            ]
+        }
+        try:
+            client.set_bucket_policy(bucket_name, json.dumps(policy))
+            print(f"Bucket {bucket_name} set to public read")
+        except S3Error as e:
+            print(f"Error setting bucket policy: {e}")
     else:
         print(f"Bucket {bucket_name} existed!")
+        # Đảm bảo policy được set ngay cả khi bucket đã tồn tại
+        try:
+            policy = {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {"AWS": "*"},
+                        "Action": ["s3:GetObject"],
+                        "Resource": [f"arn:aws:s3:::{bucket_name}/*"]
+                    }
+                ]
+            }
+            client.set_bucket_policy(bucket_name, json.dumps(policy))
+        except S3Error as e:
+            print(f"Warning: Could not set bucket policy: {e}")
 
 def upload_file(client: minio.Minio, file: UploadFile, folder, old_url: str):
     _ensure_bucket(client, settings.minio_bucket)
