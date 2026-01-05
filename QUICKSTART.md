@@ -55,6 +55,20 @@ Mở [frontend/lib/config/api_config.dart](frontend/lib/config/api_config.dart):
 static const String baseUrl = 'http://localhost:8000/api/v1';
 ```
 
+### Cấu hình Groq API Key (Tùy chọn)
+
+Nếu bạn muốn sử dụng tính năng AI chatbot, cần cấu hình Groq API key:
+
+1. **Lấy API key**: Truy cập https://console.groq.com/keys để tạo key miễn phí
+2. **Cấu hình trong file**: Mở [frontend/lib/config/api_config.dart](frontend/lib/config/api_config.dart)
+3. **Thay thế placeholder**:
+   ```dart
+   // Thay thế chuỗi rỗng bằng API key của bạn
+   static const String groqApiKey = 'gsk_your_actual_api_key_here';
+   ```
+
+⚠️ **Lưu ý**: Không commit API key lên git. Chỉ dùng cho development local.
+
 ---
 
 ## �️ Xử lý lỗi thường gặp
