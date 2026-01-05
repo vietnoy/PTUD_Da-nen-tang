@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     minio_secret_key: str = "minioadmin"
     minio_bucket: str = "di-cho-media"
 
+    # Admin credentials
+    admin_username: str = "admin"
+    admin_password: str = "admin123"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
