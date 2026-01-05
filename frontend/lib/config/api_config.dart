@@ -8,4 +8,9 @@ class ApiConfig {
 
   static const Duration connectTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
+
+  // Groq AI Configuration
+  // TODO: Replace with your actual Groq API key
+  // Get your API key from: https://console.groq.com/keys
+  static const String groqApiKey = '';
 }

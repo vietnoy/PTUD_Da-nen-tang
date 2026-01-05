@@ -4,6 +4,7 @@ import 'fridge/fridge_list_screen.dart';
 import 'shopping/shopping_lists_screen.dart';
 import 'meal_plan/meal_plan_calendar_screen.dart';
 import 'profile/profile_screen.dart';
+import 'chatbot_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
     FridgeListScreen(),
     ShoppingListsScreen(),
     MealPlanCalendarScreen(),
+    ChatbotScreen(),
     ProfileScreen(),
   ];
 
@@ -55,6 +57,10 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_today),
             label: 'Meals',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline),
+            label: 'AI Chat',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

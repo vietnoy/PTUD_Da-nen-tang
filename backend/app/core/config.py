@@ -32,6 +32,9 @@ class Settings(BaseSettings):
     admin_username: str = "admin"
     admin_password: str = "admin123"
 
+    # Groq AI Configuration
+    groq_api_key: str = "your-groq-api-key-here"
+
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
