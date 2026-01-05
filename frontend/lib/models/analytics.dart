@@ -41,6 +41,49 @@ class CategoryData {
   }
 }
 
+class CategoryBreakdown {
+  final List<String> categories;
+  final List<double> amounts;
+  final List<double> percentages;
+
+  CategoryBreakdown({
+    required this.categories,
+    required this.amounts,
+    required this.percentages,
+  });
+
+  factory CategoryBreakdown.fromJson(Map<String, dynamic> json) {
+    // Extract categories data from the response
+    final categoriesList = json['categories'] as List?;
+    if (categoriesList != null && categoriesList.isNotEmpty) {
+      // Parse from CategoryData objects
+      final categoryNames = <String>[];
+      final categoryAmounts = <double>[];
+      final categoryPercentages = <double>[];
+      
+      for (var cat in categoriesList) {
+        if (cat is Map<String, dynamic>) {
+          categoryNames.add(cat['name']?.toString() ?? '');
+          categoryAmounts.add((cat['amount'] as num?)?.toDouble() ?? 0.0);
+          categoryPercentages.add((cat['percentage'] as num?)?.toDouble() ?? 0.0);
+        }
+      }
+      
+      return CategoryBreakdown(
+        categories: categoryNames,
+        amounts: categoryAmounts,
+        percentages: categoryPercentages,
+      );
+    }
+    
+    return CategoryBreakdown(
+      categories: [],
+      amounts: [],
+      percentages: [],
+    );
+  }
+}
+
 class AnalyticsSummary {
   final double totalSpent;
   final double totalBudget;

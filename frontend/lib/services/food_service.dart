@@ -37,7 +37,14 @@ class FoodService {
       }
       if (image != null) formData.files.add(MapEntry('image', image));
 
-      final response = await _apiClient.dio.post('/food/', data: formData);
+      // Tạo request với UTF-8 encoding
+      final response = await _apiClient.dio.post(
+        '/food/',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data; charset=utf-8',
+        ),
+      );
 
       return {
         'food': Food.fromJson(response.data['food']),
@@ -93,7 +100,14 @@ class FoodService {
       if (defaultUnitId != null) formData.fields.add(MapEntry('defaultUnitId', defaultUnitId.toString()));
       if (image != null) formData.files.add(MapEntry('image', image));
 
-      final response = await _apiClient.dio.put('/food/', data: formData);
+      // Tạo request với UTF-8 encoding
+      final response = await _apiClient.dio.put(
+        '/food/',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data; charset=utf-8',
+        ),
+      );
 
       return {
         'food': Food.fromJson(response.data['food']),

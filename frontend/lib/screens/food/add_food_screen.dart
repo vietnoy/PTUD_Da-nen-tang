@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'dart:typed_data';
 import '../../providers/food_provider.dart';
 import '../../providers/auth_provider.dart';
 
@@ -119,13 +120,50 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
-                  height: 150,
+                  height: 200,
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[300]!),
                   ),
                   child: _imageFile != null
-                      ? const Icon(Icons.image, size: 60)
+                      ? FutureBuilder<Uint8List>(
+                          future: _imageFile!.readAsBytes(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Image.memory(
+                                    snapshot.data!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: IconButton(
+                                        icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                                        onPressed: () {
+                                          setState(() {
+                                            _imageFile = null;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },
+                        )
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -165,7 +203,7 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
                 decoration: const InputDecoration(
-                  labelText: 'Category',
+                  labelText: 'Category *',
                   border: OutlineInputBorder(),
                 ),
                 value: _selectedCategoryId,
@@ -180,11 +218,17 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                     _selectedCategoryId = value;
                   });
                 },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a category';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
                 decoration: const InputDecoration(
-                  labelText: 'Default Unit',
+                  labelText: 'Default Unit *',
                   border: OutlineInputBorder(),
                 ),
                 value: _selectedUnitId,
@@ -198,6 +242,12 @@ class _AddFoodScreenState extends State<AddFoodScreen> {
                   setState(() {
                     _selectedUnitId = value;
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a unit';
+                  }
+                  return null;
                 },
               ),
               const SizedBox(height: 24),

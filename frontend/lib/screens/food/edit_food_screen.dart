@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'dart:typed_data';
 import '../../providers/food_provider.dart';
 import '../../models/food.dart';
 
@@ -168,33 +169,90 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
-                  height: 150,
+                  height: 200,
                   decoration: BoxDecoration(
                     color: Colors.grey[200],
                     borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[300]!),
                   ),
                   child: _imageFile != null
-                      ? const Icon(Icons.image, size: 60)
-                      : widget.food.imageUrl != null && !_imageChanged
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.network(
-                                widget.food.imageUrl!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(Icons.add_photo_alternate, size: 48),
-                                      const SizedBox(height: 8),
-                                      Text(
-                                        'Change Photo',
-                                        style: TextStyle(color: Colors.grey[600]),
+                      ? FutureBuilder<Uint8List>(
+                          future: _imageFile!.readAsBytes(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData) {
+                              return Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Image.memory(
+                                    snapshot.data!,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  Positioned(
+                                    top: 8,
+                                    right: 8,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
                                       ),
-                                    ],
-                                  );
-                                },
-                              ),
+                                      child: IconButton(
+                                        icon: const Icon(Icons.close, color: Colors.white, size: 20),
+                                        onPressed: () {
+                                          setState(() {
+                                            _imageFile = null;
+                                            _imageChanged = false;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },
+                        )
+                      : widget.food.imageUrl != null && !_imageChanged
+                          ? Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.network(
+                                    widget.food.imageUrl!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.add_photo_alternate, size: 48),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Change Photo',
+                                            style: TextStyle(color: Colors.grey[600]),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 8,
+                                  right: 8,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: IconButton(
+                                      icon: const Icon(Icons.edit, color: Colors.white, size: 20),
+                                      onPressed: _pickImage,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             )
                           : Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -235,7 +293,7 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
                 decoration: const InputDecoration(
-                  labelText: 'Category',
+                  labelText: 'Category *',
                   border: OutlineInputBorder(),
                 ),
                 value: _selectedCategoryId,
@@ -250,11 +308,17 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
                     _selectedCategoryId = value;
                   });
                 },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a category';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
                 decoration: const InputDecoration(
-                  labelText: 'Default Unit',
+                  labelText: 'Default Unit *',
                   border: OutlineInputBorder(),
                 ),
                 value: _selectedUnitId,
@@ -268,6 +332,12 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
                   setState(() {
                     _selectedUnitId = value;
                   });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select a unit';
+                  }
+                  return null;
                 },
               ),
               const SizedBox(height: 24),

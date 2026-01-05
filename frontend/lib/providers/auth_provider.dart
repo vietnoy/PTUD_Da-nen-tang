@@ -119,6 +119,7 @@ class AuthProvider with ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
+      // Bước 1: Đăng ký user
       final result = await _authService.register(
         email: email,
         password: password,
@@ -128,28 +129,27 @@ class AuthProvider with ChangeNotifier {
         timezone: timezone,
       );
 
-      _user = result['user'];
-      _groupId = result['groupId'];
-      _confirmToken = result['confirmToken'];
+      // Bước 2: Tự động đăng nhập sau khi đăng ký thành công
+      final loginResult = await _authService.login(email, password);
 
-      // Even if saving fails, registration succeeded if we have confirmToken
-      try {
-        await _saveUserData(_user!, _groupId!);
-      } catch (saveError) {
-        // Ignore save errors - we can still proceed with verification
-        print('Failed to save user data: $saveError');
-      }
+      // Lưu tokens
+      await _apiClient.saveTokens(
+        loginResult['accessToken'],
+        loginResult['refreshToken'],
+      );
+
+      _user = loginResult['user'];
+      _groupId = loginResult['groupId'];
+      _isAuthenticated = true;
+
+      // Lưu thông tin user
+      await _saveUserData(_user!, _groupId!);
 
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
-      // Only show error if registration actually failed
-      if (e.toString().contains('confirmToken') ||
-          e.toString().contains('user') ||
-          e.toString().contains('resultCode')) {
-        _errorMessage = e.toString();
-      }
+      _errorMessage = e.toString();
       _isLoading = false;
       notifyListeners();
       return false;

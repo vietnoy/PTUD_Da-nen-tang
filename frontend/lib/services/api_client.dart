@@ -16,7 +16,11 @@ class ApiClient {
       baseUrl: ApiConfig.baseUrl,
       connectTimeout: ApiConfig.connectTimeout,
       receiveTimeout: ApiConfig.receiveTimeout,
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+      },
+      contentType: 'application/json; charset=utf-8',
+      responseType: ResponseType.json,
     ));
 
     _setupInterceptors();

@@ -70,28 +70,48 @@ class FoodProvider with ChangeNotifier {
       _isLoading = true;
       notifyListeners();
 
+      // Kiểm tra category được chọn
+      if (categoryId == null) {
+        _errorMessage = 'Category is required';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
+      // Kiểm tra unit được chọn
+      if (defaultUnitId == null) {
+        _errorMessage = 'Unit is required';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+
       // Convert category ID to name
-      String? categoryName;
-      if (categoryId != null) {
-        final category = _categories.firstWhere(
-          (cat) => cat['id'] == categoryId,
-          orElse: () => {},
-        );
-        categoryName = category['name'];
+      final category = _categories.firstWhere(
+        (cat) => cat['id'] == categoryId,
+        orElse: () => {},
+      );
+      final categoryName = category['name'];
+
+      if (categoryName == null) {
+        _errorMessage = 'Category not found';
+        _isLoading = false;
+        notifyListeners();
+        return false;
       }
 
       // Convert unit ID to name
-      String? unitName;
-      if (defaultUnitId != null) {
-        final unit = _units.firstWhere(
-          (u) => u['id'] == defaultUnitId,
-          orElse: () => {},
-        );
-        unitName = unit['name'];
-      }
+      final unit = _units.firstWhere(
+        (u) => u['id'] == defaultUnitId,
+        orElse: () => {},
+      );
+      final unitName = unit['name'];
 
-      if (categoryName == null || unitName == null) {
-        throw Exception('Category or unit not found');
+      if (unitName == null) {
+        _errorMessage = 'Unit not found';
+        _isLoading = false;
+        notifyListeners();
+        return false;
       }
 
       final result = await _foodService.createFood(

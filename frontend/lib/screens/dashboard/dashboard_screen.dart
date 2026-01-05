@@ -16,7 +16,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? _errorMessage;
   AnalyticsSummary? _summary;
   MonthlySpending? _monthlySpending;
-  List<CategoryData>? _categories;
+  CategoryBreakdown? _categoryBreakdown;
 
   @override
   void initState() {
@@ -25,6 +25,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _loadAnalytics() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -35,16 +37,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
       final monthlyData = await _analyticsService.getMonthlySpending();
       final categoryData = await _analyticsService.getCategoryBreakdown();
 
+      print('Summary Data: $summaryData');
+      print('Monthly Data: $monthlyData');
+      print('Category Data: $categoryData');
+
+      if (!mounted) return;
+
       setState(() {
         _summary = AnalyticsSummary.fromJson(summaryData);
         _monthlySpending = MonthlySpending.fromJson(monthlyData);
-        _categories = (categoryData['categories'] as List?)
-                ?.map((e) => CategoryData.fromJson(e))
-                .toList() ??
-            [];
+        _categoryBreakdown = CategoryBreakdown.fromJson(categoryData);
         _isLoading = false;
       });
     } catch (e) {
+      if (!mounted) return;
+      
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
@@ -56,39 +63,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: const Text('Bảng điều khiển'),
+        centerTitle: false,
+        elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _loadAnalytics,
+            onPressed: _isLoading ? null : _loadAnalytics,
+            tooltip: 'Làm mới',
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? _buildLoadingSkeleton()
           : _errorMessage != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error_outline,
-                          size: 64, color: Colors.grey[400]),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Failed to load analytics',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                        onPressed: _loadAnalytics,
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                )
+              ? _buildErrorState()
               : RefreshIndicator(
                   onRefresh: _loadAnalytics,
                   child: SingleChildScrollView(
@@ -97,15 +86,118 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        _buildWelcomeHeader(),
+                        const SizedBox(height: 16),
                         _buildSummaryCards(),
                         const SizedBox(height: 24),
                         _buildMonthlyChart(),
                         const SizedBox(height: 24),
                         _buildCategoryChart(),
+                        const SizedBox(height: 24),
                       ],
                     ),
                   ),
                 ),
+    );
+  }
+
+  Widget _buildLoadingSkeleton() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: _buildSkeletonCard()),
+              const SizedBox(width: 12),
+              Expanded(child: _buildSkeletonCard()),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(child: _buildSkeletonCard()),
+              const SizedBox(width: 12),
+              Expanded(child: _buildSkeletonCard()),
+            ],
+          ),
+          const SizedBox(height: 24),
+          _buildSkeletonCard(height: 250),
+          const SizedBox(height: 24),
+          _buildSkeletonCard(height: 300),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkeletonCard({double? height}) {
+    return Card(
+      child: Container(
+        height: height ?? 100,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          borderRadius: BorderRadius.circular(8),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 80, color: Colors.red[300]),
+            const SizedBox(height: 16),
+            const Text(
+              'Không thể tải dữ liệu',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _errorMessage ?? 'Đã xảy ra lỗi',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _loadAnalytics,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Thử lại'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWelcomeHeader() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Xin chào! 👋',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Đây là tổng quan chi tiêu của bạn',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
     );
   }
 
@@ -118,8 +210,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Expanded(
               child: _buildSummaryCard(
-                'Total Spent',
-                '\$${_summary!.totalSpent.toStringAsFixed(2)}',
+                'Tổng chi tiêu',
+                '₫${_formatCurrency(_summary!.totalSpent)}',
                 Icons.shopping_cart,
                 Colors.blue,
               ),
@@ -127,10 +219,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildSummaryCard(
-                'Budget Left',
-                '\$${(_summary!.totalBudget - _summary!.totalSpent).toStringAsFixed(2)}',
+                'Ngân sách còn',
+                '₫${_formatCurrency(_summary!.totalBudget - _summary!.totalSpent)}',
                 Icons.account_balance_wallet,
-                Colors.green,
+                (_summary!.totalBudget - _summary!.totalSpent) >= 0
+                    ? Colors.green
+                    : Colors.red,
               ),
             ),
           ],
@@ -140,19 +234,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Expanded(
               child: _buildSummaryCard(
-                'Avg. Trip',
-                '\$${_summary!.averageShoppingTrip.toStringAsFixed(2)}',
-                Icons.receipt,
+                'TB mỗi lần mua',
+                '₫${_formatCurrency(_summary!.averageShoppingTrip)}',
+                Icons.receipt_long,
                 Colors.orange,
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildSummaryCard(
-                'Expiring Soon',
-                '${_summary!.expiringSoonCount}',
+                'Sắp hết hạn',
+                '${_summary!.expiringSoonCount} món',
                 Icons.warning_amber,
-                Colors.red,
+                _summary!.expiringSoonCount > 0 ? Colors.red : Colors.green,
               ),
             ),
           ],
@@ -161,40 +255,69 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  String _formatCurrency(double amount) {
+    if (amount >= 1000000) {
+      return '${(amount / 1000000).toStringAsFixed(1)}M';
+    } else if (amount >= 1000) {
+      return '${(amount / 1000).toStringAsFixed(0)}K';
+    }
+    return amount.toStringAsFixed(0);
+  }
+
   Widget _buildSummaryCard(
       String title, String value, IconData icon, Color color) {
     return Card(
       elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: color, size: 20),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        onTap: () {
+          // Navigate based on card type
+          if (title == 'Expiring Soon' || title == 'Sắp hết hạn') {
+            // Navigate to fridge
+          } else if (title == 'Budget Left' || title == 'Ngân sách còn') {
+            // Navigate to shopping
+          }
+        },
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(icon, color: color, size: 20),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: color,
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 12),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -203,15 +326,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildMonthlyChart() {
     if (_monthlySpending == null || _monthlySpending!.months.isEmpty) {
       return Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              Icon(Icons.insert_chart, size: 64, color: Colors.grey[300]),
+              Icon(Icons.insert_chart_outlined, size: 64, color: Colors.grey[300]),
+              const SizedBox(height: 16),
+              Text(
+                'Chưa có dữ liệu chi tiêu',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[600],
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
-                'No spending data available',
-                style: TextStyle(color: Colors.grey[600]),
+                'Bắt đầu mua sắm để xem thống kê',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[500],
+                ),
               ),
             ],
           ),
@@ -224,14 +360,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
         : 0.0;
 
     return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Monthly Spending',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Icon(Icons.trending_up, color: Theme.of(context).primaryColor),
+                const SizedBox(width: 8),
+                const Text(
+                  'Chi tiêu theo tháng',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -247,7 +390,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       barRods: [
                         BarChartRodData(
                           toY: _monthlySpending!.amounts[index],
-                          color: Colors.blue,
+                          gradient: LinearGradient(
+                            colors: [
+                              Theme.of(context).primaryColor,
+                              Theme.of(context).primaryColor.withOpacity(0.7),
+                            ],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
                           width: 16,
                           borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(4),
@@ -265,11 +415,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             return const SizedBox();
                           }
                           final month = _monthlySpending!.months[value.toInt()];
+                          final monthNames = [
+                            'T1',
+                            'T2',
+                            'T3',
+                            'T4',
+                            'T5',
+                            'T6',
+                            'T7',
+                            'T8',
+                            'T9',
+                            'T10',
+                            'T11',
+                            'T12'
+                          ];
+                          final monthNum = int.parse(month.substring(5)) - 1;
                           return Padding(
                             padding: const EdgeInsets.only(top: 8),
                             child: Text(
-                              month.substring(5), // Show only MM part
-                              style: const TextStyle(fontSize: 10),
+                              monthNames[monthNum],
+                              style: const TextStyle(fontSize: 11),
                             ),
                           );
                         },
@@ -278,10 +443,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     leftTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
-                        reservedSize: 40,
+                        reservedSize: 45,
                         getTitlesWidget: (value, meta) {
                           return Text(
-                            '\$${value.toInt()}',
+                            _formatCurrency(value),
                             style: const TextStyle(fontSize: 10),
                           );
                         },
@@ -309,17 +474,30 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildCategoryChart() {
-    if (_categories == null || _categories!.isEmpty) {
+    if (_categoryBreakdown == null || _categoryBreakdown!.categories.isEmpty) {
       return Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              Icon(Icons.pie_chart, size: 64, color: Colors.grey[300]),
+              Icon(Icons.pie_chart_outline, size: 64, color: Colors.grey[300]),
+              const SizedBox(height: 16),
+              Text(
+                'Chưa có dữ liệu danh mục',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.grey[600],
+                ),
+              ),
               const SizedBox(height: 8),
               Text(
-                'No category data available',
-                style: TextStyle(color: Colors.grey[600]),
+                'Mua sắm các mặt hàng để xem phân loại',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey[500],
+                ),
               ),
             ],
           ),
@@ -327,6 +505,117 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
 
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.category, color: Theme.of(context).primaryColor),
+                const SizedBox(width: 8),
+                const Text(
+                  'Chi tiêu theo danh mục',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 250,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: PieChart(
+                      PieChartData(
+                        sections: List.generate(
+                          _categoryBreakdown!.categories.length,
+                          (index) => PieChartSectionData(
+                            value: _categoryBreakdown!.amounts[index],
+                            title:
+                                '${_categoryBreakdown!.percentages[index].toStringAsFixed(0)}%',
+                            color: _getColorForIndex(index),
+                            radius: 80,
+                            titleStyle: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        sectionsSpace: 2,
+                        centerSpaceRadius: 40,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(
+                          _categoryBreakdown!.categories.length,
+                          (index) => Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 16,
+                                  height: 16,
+                                  decoration: BoxDecoration(
+                                    color: _getColorForIndex(index),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: _getColorForIndex(index).withOpacity(0.3),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        _categoryBreakdown!.categories[index],
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        '₫${_formatCurrency(_categoryBreakdown!.amounts[index])}',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _getColorForIndex(int index) {
     final colors = [
       Colors.blue,
       Colors.green,
@@ -336,81 +625,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       Colors.teal,
       Colors.pink,
       Colors.amber,
+      Colors.indigo,
+      Colors.cyan,
     ];
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Spending by Category',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              height: 200,
-              child: PieChart(
-                PieChartData(
-                  sections: List.generate(
-                    _categories!.length,
-                    (index) {
-                      final category = _categories![index];
-                      return PieChartSectionData(
-                        value: category.amount,
-                        title: '${category.percentage.toStringAsFixed(0)}%',
-                        color: colors[index % colors.length],
-                        radius: 100,
-                        titleStyle: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      );
-                    },
-                  ),
-                  sectionsSpace: 2,
-                  centerSpaceRadius: 0,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ..._categories!.map(
-              (category) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 12,
-                      height: 12,
-                      decoration: BoxDecoration(
-                        color: colors[_categories!.indexOf(category) %
-                            colors.length],
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        category.name,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                    Text(
-                      '\$${category.amount.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return colors[index % colors.length];
   }
 }

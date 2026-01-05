@@ -43,11 +43,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (!mounted) return;
 
       if (success) {
-        Navigator.pushReplacementNamed(
-          context,
-          '/verify-email',
-          arguments: _emailController.text.trim(),
-        );
+        // Đăng ký thành công - chuyển thẳng về trang chủ
+        Navigator.pushReplacementNamed(context, '/home');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

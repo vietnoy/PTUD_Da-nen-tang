@@ -36,9 +36,17 @@ class AnalyticsService {
 
   String _handleError(DioException e) {
     if (e.response != null) {
-      final resultMessage = e.response?.data['resultMessage'];
-      if (resultMessage != null) {
-        return resultMessage['en'] ?? 'An error occurred';
+      final data = e.response?.data;
+      if (data is Map && data['resultMessage'] != null) {
+        final resultMessage = data['resultMessage'];
+        if (resultMessage is Map && resultMessage['en'] != null) {
+          return resultMessage['en'].toString();
+        } else if (resultMessage is String) {
+          return resultMessage;
+        }
+      }
+      if (data is Map && data['detail'] != null) {
+        return data['detail'].toString();
       }
     }
     return e.message ?? 'Network error';

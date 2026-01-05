@@ -18,7 +18,9 @@ class _FoodListScreenState extends State<FoodListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<FoodProvider>(context, listen: false).loadFoods();
+      if (mounted) {
+        Provider.of<FoodProvider>(context, listen: false).loadFoods();
+      }
     });
   }
 
