@@ -20,6 +20,7 @@ class ShoppingListData(BaseModel):
     total_cost: Decimal = Field(..., alias="totalCost")
     is_archived: bool = Field(..., alias="isArchived")
     created_by: int = Field(..., alias="createdBy")
+    created_by_username: str | None = Field(None, alias="createdByUsername")
     created_at: datetime = Field(..., alias="createdAt")
     updated_at: datetime = Field(..., alias="updatedAt")
 
@@ -41,6 +42,7 @@ class ShoppingTaskData(BaseModel):
     is_done: bool = Field(..., alias="isDone")
     done_at: datetime | None = Field(None, alias="doneAt")
     done_by: int | None = Field(None, alias="doneBy")
+    done_by_username: str | None = Field(None, alias="doneByUsername")
     created_at: datetime = Field(..., alias="createdAt")
     updated_at: datetime = Field(..., alias="updatedAt")
 

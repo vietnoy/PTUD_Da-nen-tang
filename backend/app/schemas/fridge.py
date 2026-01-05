@@ -22,6 +22,7 @@ class FridgeItemData(BaseModel):
     opened_at: datetime | None = Field(None, alias="openedAt")
     cost: Decimal | None = None
     created_by: int = Field(..., alias="createdBy")
+    created_by_username: str | None = Field(None, alias="createdByUsername")
     created_at: datetime = Field(..., alias="createdAt")
     updated_at: datetime = Field(..., alias="updatedAt")
 

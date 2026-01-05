@@ -62,26 +62,39 @@ class GroupService:
     @staticmethod
     def add_group_member(user_id: str, db: Session, group_id: str):
 
-        if db.query(GroupMember).filter(GroupMember.group_id == group_id, GroupMember.user_id == user_id).first():
+        # Check if user already has an ACTIVE membership
+        existing_membership = db.query(GroupMember).filter(
+            GroupMember.group_id == group_id,
+            GroupMember.user_id == user_id
+        ).first()
+
+        if existing_membership and existing_membership.is_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="The user has already been a member of the group!"
             )
 
-        # Deactivate all previous group memberships for this user
+        # Deactivate all previous group memberships for this user (except where they're owner)
         db.query(GroupMember).filter(
             GroupMember.user_id == user_id,
-            GroupMember.is_active == True
+            GroupMember.is_active == True,
+            GroupMember.role != "owner"  # Don't deactivate owner memberships
         ).update({"is_active": False, "left_at": func.now()})
 
-        group_member = GroupMember(
-            user_id=user_id,
-            group_id=group_id,
-            role="member",
-            is_active=True
-        )
-
-        db.add(group_member)
+        # If user previously left this group, reactivate their membership
+        if existing_membership and not existing_membership.is_active:
+            existing_membership.is_active = True
+            existing_membership.left_at = None
+            existing_membership.joined_at = func.now()
+        else:
+            # Create new membership
+            group_member = GroupMember(
+                user_id=user_id,
+                group_id=group_id,
+                role="member",
+                is_active=True
+            )
+            db.add(group_member)
 
         # Switch user's active group to the one they're joining
         user = db.query(User).filter(User.id == user_id).first()

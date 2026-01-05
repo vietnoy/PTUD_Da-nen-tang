@@ -53,10 +53,11 @@ def create_meal_plan(
             detail="Meal type must be breakfast, lunch, or dinner",
         )
 
+    # Verify the food exists and belongs to the user's group
     food = (
         db.query(Food)
         .filter(
-            Food.name == request.food_name,
+            Food.id == request.food_id,
             Food.group_id == group_member.group_id,
         )
         .first()
@@ -67,21 +68,36 @@ def create_meal_plan(
             detail="Food not found in group",
         )
 
-    unit_id = None
-    if request.unit_name:
-        unit = db.query(Unit).filter(Unit.name == request.unit_name).first()
-        if unit:
-            unit_id = unit.id
+    # Verify unit exists if provided
+    if request.unit_id:
+        unit = db.query(Unit).filter(Unit.id == request.unit_id).first()
+        if not unit:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Unit not found",
+            )
+
+    # Convert serving_size from string to Decimal if provided
+    serving_size_decimal = None
+    if request.serving_size:
+        try:
+            from decimal import Decimal
+            serving_size_decimal = Decimal(request.serving_size)
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid serving size format",
+            )
 
     new_meal_plan = MealPlan(
-        food_id=food.id,
+        food_id=request.food_id,
         group_id=group_member.group_id,
         meal_type=meal_type_lower,
         meal_date=request.meal_date,
-        serving_size=request.serving_size,
-        unit_id=unit_id,
+        serving_size=serving_size_decimal,
+        unit_id=request.unit_id,
         note=request.note,
-        is_prepared=False,
+        is_prepared=request.is_prepared,
         created_by=current_user.id,
     )
 
@@ -172,7 +188,7 @@ def get_meal_plan_by_id(
             detail="User is not in any group",
         )
 
-    meal_plan = db.query(MealPlan).filter(MealPlan.id == request.id).first()
+    meal_plan = db.query(MealPlan).filter(MealPlan.id == request.meal_plan_id).first()
     if not meal_plan:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -216,7 +232,7 @@ def update_meal_plan(
             detail="User is not in any group",
         )
 
-    meal_plan = db.query(MealPlan).filter(MealPlan.id == request.id).first()
+    meal_plan = db.query(MealPlan).filter(MealPlan.id == request.meal_plan_id).first()
     if not meal_plan:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -229,11 +245,12 @@ def update_meal_plan(
             detail="Access denied to this meal plan",
         )
 
-    if request.new_food_name is not None:
+    if request.food_id is not None:
+        # Verify the food exists and belongs to the user's group
         food = (
             db.query(Food)
             .filter(
-                Food.name == request.new_food_name,
+                Food.id == request.food_id,
                 Food.group_id == group_member.group_id
             )
             .first()
@@ -243,10 +260,10 @@ def update_meal_plan(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Food not found in group",
             )
-        meal_plan.food_id = food.id
+        meal_plan.food_id = request.food_id
 
-    if request.new_meal_type is not None:
-        meal_type_lower = request.new_meal_type.lower()
+    if request.meal_type is not None:
+        meal_type_lower = request.meal_type.lower()
         if meal_type_lower not in ["breakfast", "lunch", "dinner"]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -254,11 +271,31 @@ def update_meal_plan(
             )
         meal_plan.meal_type = meal_type_lower
 
-    if request.new_meal_date is not None:
-        meal_plan.meal_date = request.new_meal_date
+    if request.meal_date is not None:
+        meal_plan.meal_date = request.meal_date
 
-    if request.new_serving_size is not None:
-        meal_plan.serving_size = request.new_serving_size
+    if request.serving_size is not None:
+        try:
+            from decimal import Decimal
+            meal_plan.serving_size = Decimal(request.serving_size)
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid serving size format",
+            )
+
+    if request.unit_id is not None:
+        # Verify unit exists
+        unit = db.query(Unit).filter(Unit.id == request.unit_id).first()
+        if not unit:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Unit not found",
+            )
+        meal_plan.unit_id = request.unit_id
+
+    if request.note is not None:
+        meal_plan.note = request.note
 
     if request.is_prepared is not None:
         meal_plan.is_prepared = request.is_prepared
@@ -301,7 +338,7 @@ def delete_meal_plan(
             detail="User is not in any group",
         )
 
-    meal_plan = db.query(MealPlan).filter(MealPlan.id == request.id).first()
+    meal_plan = db.query(MealPlan).filter(MealPlan.id == request.meal_plan_id).first()
     if not meal_plan:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -335,6 +372,13 @@ def _build_meal_plan_data(db: Session, meal_plan: MealPlan) -> MealPlanData:
         unit = db.query(Unit).filter(Unit.id == meal_plan.unit_id).first()
         unit_name = unit.name if unit else None
 
+    # Resolve creator username
+    created_by_username = None
+    if meal_plan.created_by:
+        creator = db.query(User).filter(User.id == meal_plan.created_by).first()
+        if creator:
+            created_by_username = creator.username
+
     return MealPlanData(
         id=meal_plan.id,
         food_id=meal_plan.food_id,
@@ -349,6 +393,7 @@ def _build_meal_plan_data(db: Session, meal_plan: MealPlan) -> MealPlanData:
         is_prepared=meal_plan.is_prepared,
         prepared_at=meal_plan.prepared_at,
         created_by=meal_plan.created_by,
+        created_by_username=created_by_username,
         created_at=meal_plan.created_at,
         updated_at=meal_plan.updated_at,
     )

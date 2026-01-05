@@ -539,6 +539,13 @@ def _build_shopping_list_data(
         if assign_to_user:
             assign_to_username = assign_to_user.username
 
+    # Resolve creator username
+    created_by_username = None
+    if shopping_list.created_by:
+        creator = db.query(User).filter(User.id == shopping_list.created_by).first()
+        if creator:
+            created_by_username = creator.username
+
     return ShoppingListData(
         id=shopping_list.id,
         name=shopping_list.name,
@@ -553,6 +560,7 @@ def _build_shopping_list_data(
         total_cost=shopping_list.total_cost,
         is_archived=shopping_list.is_archived,
         created_by=shopping_list.created_by,
+        created_by_username=created_by_username,
         created_at=shopping_list.created_at,
         updated_at=shopping_list.updated_at,
     )
@@ -566,6 +574,13 @@ def _build_shopping_task_data(db: Session, task: ShoppingTask) -> ShoppingTaskDa
     if task.unit_id:
         unit = db.query(Unit).filter(Unit.id == task.unit_id).first()
         unit_name = unit.name if unit else None
+
+    # Resolve done_by username
+    done_by_username = None
+    if task.done_by:
+        done_by_user = db.query(User).filter(User.id == task.done_by).first()
+        if done_by_user:
+            done_by_username = done_by_user.username
 
     return ShoppingTaskData(
         id=task.id,
@@ -582,6 +597,7 @@ def _build_shopping_task_data(db: Session, task: ShoppingTask) -> ShoppingTaskDa
         is_done=task.is_done,
         done_at=task.done_at,
         done_by=task.done_by,
+        done_by_username=done_by_username,
         created_at=task.created_at,
         updated_at=task.updated_at,
     )

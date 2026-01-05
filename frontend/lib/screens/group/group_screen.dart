@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import '../../services/group_service.dart';
 import '../../models/group.dart';
+import '../../providers/auth_provider.dart';
 
 class GroupScreen extends StatefulWidget {
   final int groupId;
@@ -93,21 +95,29 @@ class _GroupScreenState extends State<GroupScreen> {
 
     if (result != null && result.isNotEmpty) {
       try {
-        await _groupService.addMember(result);
+        final response = await _groupService.addMember(result);
+        final newGroupId = response['groupId'] as int;
+
         if (mounted) {
+          // Update the auth provider with the new active group
+          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+          await authProvider.setActiveGroup(newGroupId);
+
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Member added successfully'),
+              content: Text('Successfully joined the group!'),
               backgroundColor: Colors.green,
             ),
           );
-          _loadMembers();
+
+          // Navigate back to home so user can see their new group
+          Navigator.pop(context, true);
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Failed to add member: ${e.toString()}'),
+              content: Text('Failed to join group: ${e.toString()}'),
               backgroundColor: Colors.red,
             ),
           );
@@ -117,11 +127,19 @@ class _GroupScreenState extends State<GroupScreen> {
   }
 
   Future<void> _removeMember(GroupMember member) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final currentUsername = authProvider.user?.username;
+    final isRemovingSelf = currentUsername == member.username;
+
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Remove Member'),
-        content: Text('Remove ${member.name} from the group?'),
+        content: Text(
+          isRemovingSelf
+            ? 'Are you sure you want to leave this group?'
+            : 'Remove ${member.name} from the group?'
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -129,9 +147,9 @@ class _GroupScreenState extends State<GroupScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Remove',
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              isRemovingSelf ? 'Leave' : 'Remove',
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],
@@ -142,13 +160,25 @@ class _GroupScreenState extends State<GroupScreen> {
       try {
         await _groupService.removeMember(member.username, widget.groupId);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Member removed successfully'),
-              backgroundColor: Colors.green,
-            ),
-          );
-          _loadMembers();
+          if (isRemovingSelf) {
+            // User left the group - navigate back to home
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('You have left the group'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pop(context, true); // Return true to indicate group change
+          } else {
+            // Someone else was removed - reload the member list
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Member removed successfully'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            _loadMembers();
+          }
         }
       } catch (e) {
         if (mounted) {

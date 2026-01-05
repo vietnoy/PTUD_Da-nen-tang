@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/fridge_provider.dart';
 import '../../models/fridge_item.dart';
+import '../../widgets/fridge_item_card.dart';
 import 'package:intl/intl.dart';
 import 'edit_fridge_item_screen.dart';
 
@@ -21,24 +22,6 @@ class _FridgeListScreenState extends State<FridgeListScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<FridgeProvider>(context, listen: false).loadFridgeItems();
     });
-  }
-
-  Color _getExpiryColor(FridgeItem item) {
-    if (item.isExpired) return Colors.red;
-    if (item.isExpiringSoon) return Colors.orange;
-    return Colors.green;
-  }
-
-  String _getExpiryText(FridgeItem item) {
-    if (item.isExpired) {
-      return 'Expired ${item.daysUntilExpiry.abs()} days ago';
-    } else if (item.daysUntilExpiry == 0) {
-      return 'Expires today';
-    } else if (item.daysUntilExpiry == 1) {
-      return 'Expires tomorrow';
-    } else {
-      return 'Expires in ${item.daysUntilExpiry} days';
-    }
   }
 
   @override
@@ -110,110 +93,68 @@ class _FridgeListScreenState extends State<FridgeListScreen> {
                     itemCount: filteredItems.length,
                     itemBuilder: (context, index) {
                       final item = filteredItems[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: _getExpiryColor(item).withOpacity(0.2),
-                            child: Icon(
-                              Icons.fastfood,
-                              color: _getExpiryColor(item),
-                            ),
-                          ),
-                          title: Text(
-                            item.foodName,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                'Quantity: ${item.quantity} ${item.unitName ?? ''}',
-                              ),
-                              Text(
-                                _getExpiryText(item),
-                                style: TextStyle(
-                                  color: _getExpiryColor(item),
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              if (item.location != null)
-                                Text(
-                                  'Location: ${item.location}',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                            ],
-                          ),
-                          trailing: PopupMenuButton(
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.edit),
-                                    SizedBox(width: 8),
-                                    Text('Edit'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.delete, color: Colors.red),
-                                    SizedBox(width: 8),
-                                    Text('Delete', style: TextStyle(color: Colors.red)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                            onSelected: (value) async {
-                              if (value == 'edit') {
-                                final result = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => EditFridgeItemScreen(item: item),
-                                  ),
-                                );
-                                if (result == true && mounted) {
-                                  Provider.of<FridgeProvider>(context, listen: false).loadFridgeItems();
-                                }
-                              } else if (value == 'delete') {
-                                final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Delete Item'),
-                                    content: Text('Delete ${item.foodName}?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context, false),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context, true),
-                                        child: const Text(
-                                          'Delete',
-                                          style: TextStyle(color: Colors.red),
+                      return FridgeItemCard(
+                        item: item,
+                        onTap: () async {
+                          // Show options bottom sheet
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (context) => SafeArea(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    leading: const Icon(Icons.edit),
+                                    title: const Text('Edit'),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      final result = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => EditFridgeItemScreen(item: item),
                                         ),
-                                      ),
-                                    ],
+                                      );
+                                      if (result == true && mounted) {
+                                        Provider.of<FridgeProvider>(context, listen: false).loadFridgeItems();
+                                      }
+                                    },
                                   ),
-                                );
+                                  ListTile(
+                                    leading: const Icon(Icons.delete, color: Colors.red),
+                                    title: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                    onTap: () async {
+                                      Navigator.pop(context);
+                                      final confirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: const Text('Delete Item'),
+                                          content: Text('Delete ${item.foodName}?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, false),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(context, true),
+                                              child: const Text(
+                                                'Delete',
+                                                style: TextStyle(color: Colors.red),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
 
-                                if (confirm == true && mounted) {
-                                  await fridgeProvider.deleteFridgeItem(item.id);
-                                }
-                              }
-                            },
-                          ),
-                        ),
+                                      if (confirm == true && mounted) {
+                                        await fridgeProvider.deleteFridgeItem(item.id);
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
                       );
                     },
                   ),

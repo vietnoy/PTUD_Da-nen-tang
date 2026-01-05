@@ -59,3 +59,21 @@ nosetests.xml
 Thumbs.db
 
 .vscode/
+
+# Flutter/Dart specific
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Test files
+*.pdf
+coverage/
+
+# Temporary images
+img/*.png
+img/*.jpg
+img/*.jpeg

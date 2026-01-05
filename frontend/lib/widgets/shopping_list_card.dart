@@ -150,6 +150,26 @@ class ShoppingListCard extends StatelessWidget {
                   ],
                 ),
               ],
+              if (list.createdByUsername != null) ...[
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.person_outline,
+                      size: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Created by: ${list.createdByUsername}',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               if (list.budget != null) ...[
                 const SizedBox(height: 4),
                 Row(
@@ -161,7 +181,7 @@ class ShoppingListCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Budget: \$${list.budget!.toStringAsFixed(2)}',
+                      'Budget: \$${list.budget}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade700,

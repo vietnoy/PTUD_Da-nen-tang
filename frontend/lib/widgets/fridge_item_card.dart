@@ -50,18 +50,7 @@ class FridgeItemCard extends StatelessWidget {
                   color: Colors.grey.shade200,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: item.foodImageUrl != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          item.foodImageUrl!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(Icons.fastfood, size: 30);
-                          },
-                        ),
-                      )
-                    : const Icon(Icons.fastfood, size: 30),
+                child: const Icon(Icons.fastfood, size: 30),
               ),
               const SizedBox(width: 12),
               // Item details
@@ -92,6 +81,38 @@ class FridgeItemCard extends StatelessWidget {
                           fontSize: 12,
                           color: Colors.grey.shade600,
                         ),
+                      ),
+                    ],
+                    if (item.createdByUsername != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(Icons.person, size: 12, color: Colors.grey.shade600),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Added by ${item.createdByUsername}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                    if (item.cost != null) ...[
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          Icon(Icons.attach_money, size: 12, color: Colors.green.shade600),
+                          Text(
+                            '\$${item.cost}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.green.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                     const SizedBox(height: 4),

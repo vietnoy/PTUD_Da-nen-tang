@@ -135,6 +135,14 @@ class _MealPlanCalendarScreenState extends State<MealPlanCalendarScreen> {
                                 Text(
                                   'Serving: ${mealPlan.servingSize} ${mealPlan.unitName ?? ''}',
                                 ),
+                              if (mealPlan.createdByUsername != null)
+                                Text(
+                                  'Planned by ${mealPlan.createdByUsername}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
                             ],
                           ),
                           trailing: Checkbox(

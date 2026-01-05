@@ -14,6 +14,7 @@ class FridgeItem {
   final DateTime? openedAt;
   final String? cost;
   final int createdBy;
+  final String? createdByUsername;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -33,6 +34,7 @@ class FridgeItem {
     this.openedAt,
     this.cost,
     required this.createdBy,
+    this.createdByUsername,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -54,6 +56,7 @@ class FridgeItem {
       openedAt: json['openedAt'] != null ? DateTime.parse(json['openedAt']) : null,
       cost: json['cost']?.toString(),
       createdBy: json['createdBy'],
+      createdByUsername: json['createdByUsername'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );

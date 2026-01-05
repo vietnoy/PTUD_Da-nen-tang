@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dashboard/dashboard_screen.dart';
 import 'fridge/fridge_list_screen.dart';
 import 'shopping/shopping_lists_screen.dart';
 import 'meal_plan/meal_plan_calendar_screen.dart';
@@ -15,6 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   static const List<Widget> _screens = [
+    DashboardScreen(),
     FridgeListScreen(),
     ShoppingListsScreen(),
     MealPlanCalendarScreen(),
@@ -38,6 +40,10 @@ class _HomeScreenState extends State<HomeScreen> {
         selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey,
         items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.kitchen),
             label: 'Fridge',

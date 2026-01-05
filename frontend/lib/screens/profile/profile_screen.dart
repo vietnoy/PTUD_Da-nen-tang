@@ -2,8 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  int _imageRefreshKey = DateTime.now().millisecondsSinceEpoch;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +25,13 @@ class ProfileScreen extends StatelessWidget {
             icon: const Icon(Icons.edit),
             onPressed: () async {
               final result = await Navigator.pushNamed(context, '/profile/edit');
-              // The screen will automatically rebuild due to AuthProvider notification
+              // Reload user data from API (like group management does)
+              if (mounted) {
+                await authProvider.reloadUser();
+                setState(() {
+                  _imageRefreshKey = DateTime.now().millisecondsSinceEpoch;
+                });
+              }
             },
           ),
         ],
@@ -30,10 +43,11 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 24),
                 Center(
                   child: CircleAvatar(
+                    key: ValueKey('avatar-$_imageRefreshKey'),
                     radius: 60,
                     backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
                     backgroundImage: user.avatar != null
-                        ? NetworkImage(user.avatar!)
+                        ? NetworkImage('${user.avatar}?t=$_imageRefreshKey')
                         : null,
                     child: user.avatar == null
                         ? Icon(

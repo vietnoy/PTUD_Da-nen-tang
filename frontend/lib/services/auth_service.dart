@@ -106,6 +106,20 @@ class AuthService {
     }
   }
 
+  Future<Map<String, dynamic>> getCurrentUser() async {
+    try {
+      final response = await _apiClient.dio.get('/users/me');
+
+      return {
+        'user': User.fromJson(response.data['user']),
+        'resultCode': response.data['resultCode'],
+        'resultMessage': ResultMessage.fromJson(response.data['resultMessage']),
+      };
+    } on DioException catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   Future<void> logout() async {
     try {
       await _apiClient.dio.post('/auth/logout');

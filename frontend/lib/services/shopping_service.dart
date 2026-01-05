@@ -58,8 +58,8 @@ class ShoppingService {
   Future<Map<String, dynamic>> getShoppingListById(int id) async {
     try {
       final response = await _apiClient.dio.post(
-        '/shopping/list/id',
-        data: {'listId': id},
+        '/shopping/list/id/',
+        data: {'id': id},
       );
 
       final tasks = (response.data['tasks'] as List)
@@ -88,17 +88,17 @@ class ShoppingService {
     String? budget,
   }) async {
     try {
-      final Map<String, dynamic> data = {'listId': listId};
+      final Map<String, dynamic> data = {'id': listId};
 
-      if (name != null) data['name'] = name;
-      if (description != null) data['description'] = description;
-      if (assignToId != null) data['assignToId'] = assignToId;
-      if (dueDate != null) data['dueDate'] = dueDate.toIso8601String();
-      if (status != null) data['status'] = status;
-      if (priority != null) data['priority'] = priority;
-      if (budget != null) data['budget'] = budget;
+      if (name != null) data['newName'] = name;
+      if (description != null) data['newDescription'] = description;
+      if (assignToId != null) data['newAssignToId'] = assignToId;
+      if (dueDate != null) data['newDueDate'] = dueDate.toIso8601String();
+      if (status != null) data['newStatus'] = status;
+      if (priority != null) data['newPriority'] = priority;
+      if (budget != null) data['newBudget'] = budget;
 
-      final response = await _apiClient.dio.put('/shopping/list', data: data);
+      final response = await _apiClient.dio.put('/shopping/list/', data: data);
 
       return {
         'shoppingList': ShoppingList.fromJson(response.data['shoppingList']),

@@ -20,6 +20,7 @@ class MealPlanData(BaseModel):
     is_prepared: bool = Field(..., alias="isPrepared")
     prepared_at: datetime | None = Field(None, alias="preparedAt")
     created_by: int = Field(..., alias="createdBy")
+    created_by_username: str | None = Field(None, alias="createdByUsername")
     created_at: datetime = Field(..., alias="createdAt")
     updated_at: datetime = Field(..., alias="updatedAt")
 
@@ -27,12 +28,13 @@ class MealPlanData(BaseModel):
 
 
 class CreateMealPlanRequest(BaseModel):
-    food_name: str = Field(..., min_length=1, max_length=100, alias="foodName")
+    food_id: int = Field(..., gt=0, alias="foodId")
     meal_type: str = Field(..., min_length=1, max_length=20, alias="mealType")
     meal_date: date = Field(..., alias="mealDate")
-    serving_size: Decimal | None = Field(None, gt=0, alias="servingSize")
-    unit_name: str | None = Field(None, max_length=20, alias="unitName")
+    serving_size: str | None = Field(None, alias="servingSize")
+    unit_id: int | None = Field(None, gt=0, alias="unitId")
     note: str | None = Field(None, max_length=500)
+    is_prepared: bool = Field(False, alias="isPrepared")
 
 
 class CreateMealPlanResponse(BaseResponse):
@@ -54,7 +56,7 @@ class GetMealPlansResponse(BaseResponse):
 
 
 class GetMealPlanByIdRequest(BaseModel):
-    id: int = Field(..., gt=0)
+    meal_plan_id: int = Field(..., gt=0, alias="mealPlanId")
 
 
 class GetMealPlanByIdResponse(BaseResponse):
@@ -64,11 +66,13 @@ class GetMealPlanByIdResponse(BaseResponse):
 
 
 class UpdateMealPlanRequest(BaseModel):
-    id: int = Field(..., gt=0)
-    new_food_name: str | None = Field(None, min_length=1, max_length=100, alias="newFoodName")
-    new_meal_type: str | None = Field(None, min_length=1, max_length=20, alias="newMealType")
-    new_meal_date: date | None = Field(None, alias="newMealDate")
-    new_serving_size: Decimal | None = Field(None, gt=0, alias="newServingSize")
+    meal_plan_id: int = Field(..., gt=0, alias="mealPlanId")
+    food_id: int | None = Field(None, gt=0, alias="foodId")
+    meal_type: str | None = Field(None, min_length=1, max_length=20, alias="mealType")
+    meal_date: date | None = Field(None, alias="mealDate")
+    serving_size: str | None = Field(None, alias="servingSize")
+    unit_id: int | None = Field(None, gt=0, alias="unitId")
+    note: str | None = Field(None, max_length=500)
     is_prepared: bool | None = Field(None, alias="isPrepared")
 
 
@@ -79,7 +83,7 @@ class UpdateMealPlanResponse(BaseResponse):
 
 
 class DeleteMealPlanRequest(BaseModel):
-    id: int = Field(..., gt=0)
+    meal_plan_id: int = Field(..., gt=0, alias="mealPlanId")
 
 
 class DeleteMealPlanResponse(BaseResponse):

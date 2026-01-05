@@ -285,6 +285,13 @@ def _build_fridge_item_data(db: Session, fridge_item: FridgeItem) -> FridgeItemD
         unit = db.query(Unit).filter(Unit.id == fridge_item.unit_id).first()
         unit_name = unit.name if unit else None
 
+    # Resolve creator username
+    created_by_username = None
+    if fridge_item.created_by:
+        creator = db.query(User).filter(User.id == fridge_item.created_by).first()
+        if creator:
+            created_by_username = creator.username
+
     return FridgeItemData(
         id=fridge_item.id,
         food_id=fridge_item.food_id,
@@ -301,6 +308,7 @@ def _build_fridge_item_data(db: Session, fridge_item: FridgeItem) -> FridgeItemD
         opened_at=fridge_item.opened_at,
         cost=fridge_item.cost,
         created_by=fridge_item.created_by,
+        created_by_username=created_by_username,
         created_at=fridge_item.created_at,
         updated_at=fridge_item.updated_at,
     )

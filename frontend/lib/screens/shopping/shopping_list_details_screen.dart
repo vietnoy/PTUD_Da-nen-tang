@@ -205,14 +205,86 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     );
   }
 
-  Future<void> _toggleTaskDone(ShoppingTask task) async {
-    final shoppingProvider = Provider.of<ShoppingProvider>(context, listen: false);
-    await shoppingProvider.updateShoppingTask(
-      taskId: task.id,
-      listId: widget.listId,
-      isDone: !task.isDone,
+  Future<void> _showActualCostDialog(ShoppingTask task) async {
+    final costController = TextEditingController(
+      text: task.estimatedCost ?? '',
     );
-    await shoppingProvider.loadShoppingListDetails(widget.listId);
+
+    if (!mounted) return;
+
+    final result = await showDialog<String?>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Enter Actual Cost'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'What was the actual cost for "${task.foodName}"?',
+              style: const TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: costController,
+              decoration: const InputDecoration(
+                labelText: 'Actual Cost',
+                border: OutlineInputBorder(),
+                prefixText: '\$ ',
+              ),
+              keyboardType: TextInputType.number,
+              autofocus: true,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Leave empty to use estimated cost',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, ''),
+            child: const Text('Skip'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, costController.text),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && mounted) {
+      final shoppingProvider = Provider.of<ShoppingProvider>(context, listen: false);
+      await shoppingProvider.updateShoppingTask(
+        taskId: task.id,
+        listId: widget.listId,
+        isDone: true,
+        actualCost: result.isEmpty ? null : result,
+      );
+      await shoppingProvider.loadShoppingListDetails(widget.listId);
+    }
+  }
+
+  Future<void> _toggleTaskDone(ShoppingTask task) async {
+    // If marking as done, show actual cost dialog
+    if (!task.isDone) {
+      await _showActualCostDialog(task);
+    } else {
+      // If unmarking (setting to not done), just toggle
+      final shoppingProvider = Provider.of<ShoppingProvider>(context, listen: false);
+      await shoppingProvider.updateShoppingTask(
+        taskId: task.id,
+        listId: widget.listId,
+        isDone: false,
+      );
+      await shoppingProvider.loadShoppingListDetails(widget.listId);
+    }
   }
 
   Future<void> _deleteTask(ShoppingTask task) async {
@@ -251,6 +323,54 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(shoppingProvider.errorMessage ?? 'Failed to delete task'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  Future<void> _markAsCompleted() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Complete Shopping List'),
+        content: const Text('Mark this shopping list as completed? This will include it in your dashboard analytics.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.green),
+            child: const Text('Complete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final shoppingProvider = Provider.of<ShoppingProvider>(context, listen: false);
+      final success = await shoppingProvider.updateShoppingList(
+        listId: widget.listId,
+        status: 'completed',
+      );
+
+      if (mounted) {
+        if (success) {
+          await shoppingProvider.loadShoppingListDetails(widget.listId);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Shopping list marked as completed'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(shoppingProvider.errorMessage ?? 'Failed to complete list'),
               backgroundColor: Colors.red,
             ),
           );
@@ -317,6 +437,96 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
     }
   }
 
+  Widget _buildBudgetTracking(shoppingList) {
+    if (shoppingList.budget == null) return const SizedBox();
+
+    final budget = double.parse(shoppingList.budget!);
+    final actual = double.parse(shoppingList.totalCost);
+    final percentage = (actual / budget) * 100;
+
+    Color budgetColor = Colors.green;
+    IconData budgetIcon = Icons.check_circle;
+    String budgetMessage = '';
+
+    if (percentage >= 100) {
+      budgetColor = Colors.red;
+      budgetIcon = Icons.warning;
+      budgetMessage = 'Over budget by \$${(actual - budget).toStringAsFixed(2)}';
+    } else if (percentage >= 90) {
+      budgetColor = Colors.orange;
+      budgetIcon = Icons.warning_amber;
+      budgetMessage = 'Warning: ${percentage.toStringAsFixed(0)}% of budget used';
+    } else {
+      budgetMessage = '${(budget - actual).toStringAsFixed(2)} remaining';
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: budgetColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: budgetColor.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.account_balance_wallet, size: 16, color: budgetColor),
+                  const SizedBox(width: 8),
+                  const Text(
+                    'Budget Tracking',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              Icon(budgetIcon, color: budgetColor, size: 20),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Budget: \$${budget.toStringAsFixed(2)}',
+                style: const TextStyle(fontSize: 13),
+              ),
+              Text(
+                'Spent: \$${actual.toStringAsFixed(2)}',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: budgetColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: (percentage / 100).clamp(0.0, 1.0),
+            backgroundColor: Colors.grey[300],
+            valueColor: AlwaysStoppedAnimation<Color>(budgetColor),
+            minHeight: 8,
+          ),
+          if (budgetMessage.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              budgetMessage,
+              style: TextStyle(
+                color: budgetColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final shoppingProvider = Provider.of<ShoppingProvider>(context);
@@ -335,6 +545,12 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
       appBar: AppBar(
         title: Text(shoppingList.name),
         actions: [
+          if (shoppingList.status != 'completed')
+            IconButton(
+              icon: const Icon(Icons.check_circle, color: Colors.green),
+              onPressed: _markAsCompleted,
+              tooltip: 'Mark as Completed',
+            ),
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.red),
             onPressed: _deleteList,
@@ -351,6 +567,31 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (shoppingList.status == 'completed')
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(color: Colors.green),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.check_circle, color: Colors.green, size: 16),
+                              const SizedBox(width: 4),
+                              const Text(
+                                'COMPLETED',
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -386,6 +627,11 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                             color: Colors.grey[700],
                           ),
                         ),
+                      ],
+                      // Budget tracking
+                      if (shoppingList.budget != null) ...[
+                        const SizedBox(height: 16),
+                        _buildBudgetTracking(shoppingList),
                       ],
                     ],
                   ),

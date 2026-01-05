@@ -11,6 +11,7 @@ class MealPlan {
   final String? note;
   final bool isPrepared;
   final int createdBy;
+  final String? createdByUsername;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -27,6 +28,7 @@ class MealPlan {
     this.note,
     required this.isPrepared,
     required this.createdBy,
+    this.createdByUsername,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -45,6 +47,7 @@ class MealPlan {
       note: json['note'],
       isPrepared: json['isPrepared'],
       createdBy: json['createdBy'],
+      createdByUsername: json['createdByUsername'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );

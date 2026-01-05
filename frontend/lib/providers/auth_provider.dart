@@ -190,6 +190,19 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<void> reloadUser() async {
+    try {
+      final result = await _authService.getCurrentUser();
+      _user = result['user'];
+      if (_user != null && _groupId != null) {
+        await _saveUserData(_user!, _groupId!);
+      }
+      notifyListeners();
+    } catch (e) {
+      print('Error reloading user: $e');
+    }
+  }
+
   Future<void> logout() async {
     try {
       await _authService.logout();

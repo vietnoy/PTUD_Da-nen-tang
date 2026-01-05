@@ -60,6 +60,7 @@ def edit_current_user_profile(
 
         response = storage.upload_file(client, file, f"avatar/{current_user.id}", current_user.avatar_url)
         current_user.avatar_url = response["public_url"]
+        current_user.photo_url = response["public_url"]  # Also update photo_url for UserData schema
         photo_url = response["public_url"]
 
     db.commit()

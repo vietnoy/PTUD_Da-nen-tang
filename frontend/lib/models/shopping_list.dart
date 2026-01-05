@@ -11,6 +11,7 @@ class ShoppingList {
   final String? budget;
   final String totalCost;
   final int createdBy;
+  final String? createdByUsername;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -27,6 +28,7 @@ class ShoppingList {
     this.budget,
     required this.totalCost,
     required this.createdBy,
+    this.createdByUsername,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -45,8 +47,17 @@ class ShoppingList {
       budget: json['budget']?.toString(),
       totalCost: json['totalCost'].toString(),
       createdBy: json['createdBy'],
+      createdByUsername: json['createdByUsername'],
       createdAt: DateTime.parse(json['createdAt']),
       updatedAt: DateTime.parse(json['updatedAt']),
     );
   }
+
+  // Computed properties
+  bool get isOverdue {
+    if (dueDate == null) return false;
+    return DateTime.now().isAfter(dueDate!) && status != 'completed';
+  }
+
+  String? get assignToName => assignToUsername;
 }
