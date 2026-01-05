@@ -36,8 +36,8 @@ def register(user_data: RegisterRequest, db: Session = Depends(get_db)):
         "type": "confirm"
     })
 
-    # send code to verify email
-    AuthService.send_verification_code(user)
+    # Bỏ qua gửi email xác thực
+    # AuthService.send_verification_code(user)
 
     return RegisterResponse(
         resultMessage=ResultMessage(en="Registration successful", vn="Đăng ký thành công"),
