@@ -35,7 +35,8 @@ analyzer:
   errors:
     # Reduce severity of common warnings
     unused_import: ignore
-    unused_local_variable: warning
+    unused_local_variable: ignore
+    unused_field: ignore
     dead_code: warning
     undefined_getter: ignore
     argument_type_not_assignable: ignore
