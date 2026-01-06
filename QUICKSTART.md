@@ -38,7 +38,7 @@ cd frontend
 flutter pub get
 
 # 2. Chạy trên Chrome/Web
-flutter run -d chrome
+flutter run -d chrome --web-port=8080
 
 # 3. Hoặc chạy trên Android/iOS
 flutter run
