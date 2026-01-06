@@ -14,6 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  String? _errorMessage;
 
   @override
   void dispose() {
@@ -24,8 +25,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
+      setState(() {
+        _errorMessage = null;
+      });
+
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
+
       final success = await authProvider.login(
         _emailController.text.trim(),
         _passwordController.text,
@@ -36,12 +41,10 @@ class _LoginScreenState extends State<LoginScreen> {
       if (success) {
         // Navigation will be handled by the root navigator
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(authProvider.errorMessage ?? 'Login failed'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        setState(() {
+          // Show simple error message
+          _errorMessage = 'Invalid email or password';
+        });
       }
     }
   }
@@ -127,6 +130,32 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
+                  if (_errorMessage != null) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.red.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.error_outline, color: Colors.red.shade700, size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _errorMessage!,
+                              style: TextStyle(
+                                color: Colors.red.shade700,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: authProvider.isLoading ? null : _handleLogin,

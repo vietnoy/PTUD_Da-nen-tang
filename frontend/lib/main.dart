@@ -54,15 +54,9 @@ class MyApp extends StatelessWidget {
                 elevation: 0,
               ),
             ),
-            home: authProvider.isLoading
-                ? const Scaffold(
-                    body: Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                : authProvider.isAuthenticated
-                    ? const HomeScreen()
-                    : const LoginScreen(),
+            home: authProvider.isAuthenticated
+                ? const HomeScreen()
+                : const LoginScreen(),
             onGenerateRoute: (settings) {
               // Public routes - Auth routes (no authentication required)
               if (settings.name == '/login') {
