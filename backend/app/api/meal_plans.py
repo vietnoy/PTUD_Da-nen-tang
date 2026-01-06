@@ -47,10 +47,10 @@ def create_meal_plan(
         )
 
     meal_type_lower = request.meal_type.lower()
-    if meal_type_lower not in ["breakfast", "lunch", "dinner"]:
+    if meal_type_lower not in ["breakfast", "lunch", "dinner", "snack"]:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Meal type must be breakfast, lunch, or dinner",
+            detail="Meal type must be breakfast, lunch, dinner, or snack",
         )
 
     # Verify the food exists and belongs to the user's group
@@ -152,7 +152,7 @@ def get_meal_plans(
 
     if meal_type:
         meal_type_lower = meal_type.lower()
-        if meal_type_lower in ["breakfast", "lunch", "dinner"]:
+        if meal_type_lower in ["breakfast", "lunch", "dinner", "snack"]:
             query = query.filter(MealPlan.meal_type == meal_type_lower)
 
     meal_plans = query.all()
@@ -264,10 +264,10 @@ def update_meal_plan(
 
     if request.meal_type is not None:
         meal_type_lower = request.meal_type.lower()
-        if meal_type_lower not in ["breakfast", "lunch", "dinner"]:
+        if meal_type_lower not in ["breakfast", "lunch", "dinner", "snack"]:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Meal type must be breakfast, lunch, or dinner",
+                detail="Meal type must be breakfast, lunch, dinner, or snack",
             )
         meal_plan.meal_type = meal_type_lower
 
