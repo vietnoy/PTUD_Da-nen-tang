@@ -211,7 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Tổng chi tiêu',
-                '₫${_formatCurrency(_summary!.totalSpent)}',
+                '\$${_formatCurrency(_summary!.totalSpent)}',
                 Icons.shopping_cart,
                 Colors.blue,
               ),
@@ -220,7 +220,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'Ngân sách còn',
-                '₫${_formatCurrency(_summary!.totalBudget - _summary!.totalSpent)}',
+                '\$${_formatCurrency(_summary!.totalBudget - _summary!.totalSpent)}',
                 Icons.account_balance_wallet,
                 (_summary!.totalBudget - _summary!.totalSpent) >= 0
                     ? Colors.green
@@ -235,7 +235,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             Expanded(
               child: _buildSummaryCard(
                 'TB mỗi lần mua',
-                '₫${_formatCurrency(_summary!.averageShoppingTrip)}',
+                '\$${_formatCurrency(_summary!.averageShoppingTrip)}',
                 Icons.receipt_long,
                 Colors.orange,
               ),
@@ -590,7 +590,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                       Text(
-                                        '₫${_formatCurrency(_categoryBreakdown!.amounts[index])}',
+                                        '\$${_formatCurrency(_categoryBreakdown!.amounts[index])}',
                                         style: TextStyle(
                                           fontSize: 11,
                                           color: Colors.grey[600],
