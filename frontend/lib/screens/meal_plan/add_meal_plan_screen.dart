@@ -108,7 +108,7 @@ class _AddMealPlanScreenState extends State<AddMealPlanScreen> {
                   labelText: 'Food *',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedFoodId,
+                initialValue: _selectedFoodId,
                 items: foodProvider.foods.map((food) {
                   return DropdownMenuItem<int>(
                     value: food.id,
@@ -129,7 +129,7 @@ class _AddMealPlanScreenState extends State<AddMealPlanScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _mealType,
+                initialValue: _mealType,
                 decoration: const InputDecoration(
                   labelText: 'Meal Type',
                   border: OutlineInputBorder(),
@@ -172,7 +172,7 @@ class _AddMealPlanScreenState extends State<AddMealPlanScreen> {
                   labelText: 'Unit',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedUnitId,
+                initialValue: _selectedUnitId,
                 items: foodProvider.units.map((unit) {
                   return DropdownMenuItem<int>(
                     value: unit['id'] as int,

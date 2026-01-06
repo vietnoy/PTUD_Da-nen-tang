@@ -77,7 +77,7 @@ class _AdminUnitsScreenState extends State<AdminUnitsScreen> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: selectedType,
+                    initialValue: selectedType,
                     decoration: const InputDecoration(labelText: 'Loại'),
                     items: const [
                       DropdownMenuItem(value: 'weight', child: Text('Weight')),

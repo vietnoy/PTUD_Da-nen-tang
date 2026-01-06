@@ -55,7 +55,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       labelText: 'Food Item *',
                       border: OutlineInputBorder(),
                     ),
-                    value: selectedFoodId,
+                    initialValue: selectedFoodId,
                     items: foodProvider.foods.map((food) {
                       return DropdownMenuItem<int>(
                         value: food.id,
@@ -98,7 +98,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       labelText: 'Unit',
                       border: OutlineInputBorder(),
                     ),
-                    value: selectedUnitId,
+                    initialValue: selectedUnitId,
                     items: foodProvider.units.map((unit) {
                       return DropdownMenuItem<int>(
                         value: unit['id'] as int,
@@ -127,7 +127,7 @@ class _ShoppingListDetailsScreenState extends State<ShoppingListDetailsScreen> {
                       labelText: 'Priority',
                       border: OutlineInputBorder(),
                     ),
-                    value: priority,
+                    initialValue: priority,
                     items: const [
                       DropdownMenuItem(value: 'low', child: Text('Low')),
                       DropdownMenuItem(value: 'medium', child: Text('Medium')),

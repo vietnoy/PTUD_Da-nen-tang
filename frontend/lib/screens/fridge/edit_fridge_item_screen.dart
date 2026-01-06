@@ -217,7 +217,7 @@ class _EditFridgeItemScreenState extends State<EditFridgeItemScreen> {
                   labelText: 'Unit',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedUnitId,
+                initialValue: _selectedUnitId,
                 items: foodProvider.units.map((unit) {
                   return DropdownMenuItem<int>(
                     value: unit['id'] as int,
@@ -236,7 +236,7 @@ class _EditFridgeItemScreenState extends State<EditFridgeItemScreen> {
                   labelText: 'Location',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedLocation,
+                initialValue: _selectedLocation,
                 items: _locations.map((location) {
                   return DropdownMenuItem<String>(
                     value: location,

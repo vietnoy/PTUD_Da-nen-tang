@@ -155,7 +155,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedLanguage,
+                initialValue: _selectedLanguage,
                 decoration: const InputDecoration(
                   labelText: 'Language',
                   border: OutlineInputBorder(),
@@ -172,7 +172,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<int>(
-                value: _selectedTimezone,
+                initialValue: _selectedTimezone,
                 decoration: const InputDecoration(
                   labelText: 'Timezone',
                   border: OutlineInputBorder(),

@@ -296,7 +296,7 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
                   labelText: 'Category *',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedCategoryId,
+                initialValue: _selectedCategoryId,
                 items: foodProvider.categories.map((cat) {
                   return DropdownMenuItem<int>(
                     value: cat['id'] as int,
@@ -321,7 +321,7 @@ class _EditFoodScreenState extends State<EditFoodScreen> {
                   labelText: 'Default Unit *',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedUnitId,
+                initialValue: _selectedUnitId,
                 items: foodProvider.units.map((unit) {
                   return DropdownMenuItem<int>(
                     value: unit['id'] as int,

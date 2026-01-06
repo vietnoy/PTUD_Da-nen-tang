@@ -127,7 +127,7 @@ class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
                   labelText: 'Food Item *',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedFoodId,
+                initialValue: _selectedFoodId,
                 items: foodProvider.foods.map((food) {
                   return DropdownMenuItem(
                     value: food.id,
@@ -161,7 +161,7 @@ class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
                   labelText: 'Unit',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedUnitId,
+                initialValue: _selectedUnitId,
                 items: foodProvider.units.map((unit) {
                   return DropdownMenuItem<int>(
                     value: unit['id'] as int,
@@ -180,7 +180,7 @@ class _AddFridgeItemScreenState extends State<AddFridgeItemScreen> {
                   labelText: 'Location',
                   border: OutlineInputBorder(),
                 ),
-                value: _selectedLocation,
+                initialValue: _selectedLocation,
                 items: const [
                   DropdownMenuItem(value: 'fridge', child: Text('Fridge')),
                   DropdownMenuItem(value: 'freezer', child: Text('Freezer')),

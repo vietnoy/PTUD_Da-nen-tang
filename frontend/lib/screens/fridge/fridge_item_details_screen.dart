@@ -121,7 +121,7 @@ class FridgeItemDetailsScreen extends StatelessWidget {
                         isOpened: value,
                       );
                     },
-                    activeColor: const Color(0xFF4CAF50),
+                    activeThumbColor: const Color(0xFF4CAF50),
                   ),
                 ],
               ),

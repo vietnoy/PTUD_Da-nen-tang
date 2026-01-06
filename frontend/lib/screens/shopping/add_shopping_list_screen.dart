@@ -115,7 +115,7 @@ class _AddShoppingListScreenState extends State<AddShoppingListScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedPriority,
+                initialValue: _selectedPriority,
                 decoration: InputDecoration(
                   labelText: 'Priority',
                   border: OutlineInputBorder(
